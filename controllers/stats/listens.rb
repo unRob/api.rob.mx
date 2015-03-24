@@ -66,10 +66,8 @@ class API < Sinatra::Base
       @since ||= 1.week.ago.beginning_of_day if !!@until
       @until ||= @since+1.week if @since
 
-      raise ApiError.new(400, 'Fechas inválidas') unless @since && @since < @until
+      raise ApiError.new(400, 'Fechas inválidas') unless @since && @until && @since < @until
 
-
-      puts
       count_query = @query || {}
       count_query = count_query.merge({time: {'$gte'=>@since, '$lte'=> @until}})
       count = Event::Listen.where(count_query).count
