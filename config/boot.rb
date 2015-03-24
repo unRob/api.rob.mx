@@ -5,7 +5,7 @@ Encoding.default_external = 'utf-8'
 $config_root = File.dirname(__FILE__)
 ENV['app_root'] = File.dirname($config_root)
 
-module API
+module Api
   class Config
 
     @@data = {}
