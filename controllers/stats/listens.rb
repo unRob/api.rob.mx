@@ -27,6 +27,7 @@ class API < Sinatra::Base
         end
 
         if params[:q]
+          raise ApiError(400, 'El query debe ser un objeto') unless params[:q].is_a? Hash
           @query = params[:q].reject {|k,v| !_query.include?(k.to_sym) }
           puts params[:q]
           @query = @query.map {|k,v|
@@ -63,7 +64,7 @@ class API < Sinatra::Base
       limit = [100, limit.to_i].min
 
       @since ||= 1.week.ago.beginning_of_day if !!@until
-      @until ||= @since+1.week
+      @until ||= @since+1.week if @since
 
       raise ApiError.new(400, 'Fechas inválidas') unless @since && @since < @until
 

@@ -50,7 +50,8 @@ class API < Sinatra::Base
 
   error do
     status 500
-    json({error: e.message})
+    err = env['sinatra.error']
+    json({error: err.message})
   end
 
   # routes.each do |verb, paths|
