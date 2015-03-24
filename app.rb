@@ -23,9 +23,9 @@ class API < Sinatra::Base
   end
 
   def self.bootstrap
-    set :facebook, Koala::Facebook::API.new(API::Config.facebook_access_token)
-    set :facebook_oauth, Koala::Facebook::OAuth.new(API::Config.facebook_id, API::Config.facebook_secret)
-    RSpotify.authenticate API::Config.spotify_key, API::Config.spotify_secret
+    set :facebook, Koala::Facebook::API.new(Api::Config.facebook_access_token)
+    set :facebook_oauth, Koala::Facebook::OAuth.new(Api::Config.facebook_id, Api::Config.facebook_secret)
+    RSpotify.authenticate Api::Config.spotify_key, Api::Config.spotify_secret
 
     Mongoid.raise_not_found_error = false
     Mongoid.configure do |config|
