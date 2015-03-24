@@ -3,7 +3,7 @@ class API < Sinatra::Base
   namespace '/hook' do
 
     get '/listen' do
-      token = Config.facebook_verify
+      token = API::Config.facebook_verify
       puts 'verificando suscripción'
       if Koala::Facebook::RealtimeUpdates.meet_challenge(params, token)
         params['hub.challenge']
@@ -37,9 +37,12 @@ class API < Sinatra::Base
       'ok'
     end #POST /music
 
-    get '/fb-login' do
-      id = Config.facebook_id
-      secret = Config.facebook_secret
+    get '/fb-login/:secret' do |secret|
+      if API::Config.facebook_verify != secret
+        halt(403)
+      end
+      id = API::Config.facebook_id
+      secret = API::Config.facebook_secret
       redirect = request.url
       oauth = Koala::Facebook::OAuth.new(id, secret, redirect)
 
@@ -50,9 +53,9 @@ class API < Sinatra::Base
         redirect to oauth.url_for_oauth_code(opts)
       else
         access_token = oauth.get_access_token(params[:code])
-        Config.facebook_access_token = access_token
-        Config.save
-        Config.facebook_access_token
+        API::Config.facebook_access_token = access_token
+        API::Config.save
+        API::Config.facebook_access_token
       end
     end
 
