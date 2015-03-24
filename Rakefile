@@ -12,11 +12,7 @@ task :env do
   require "#{$dir}/config/boot.rb"
 end
 
-task :bootstrap do
-  require 'rubygems'
-  require 'bundler'
-  Bundler.require :script
-  I18n.available_locales= [:es, :en]
+task :bootstrap => :env do
   require "#{$dir}/app.rb"
   API.bootstrap
 end

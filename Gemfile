@@ -11,6 +11,11 @@ group :script, :http do
   gem 'activesupport', require: %w{active_support/core_ext/string active_support/core_ext/numeric}
 end
 
+group :script do
+  gem 'nokogiri'
+  gem 'nokogiri-plist'
+end
+
 
 group :http do
   gem 'redis'

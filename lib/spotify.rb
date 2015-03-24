@@ -22,16 +22,19 @@ class Spotify
     if genre.nil?
       genre = Genre.create({name: name}.merge(stub))
     end
+    genre
   end
 
 
   def self.query_album album, artist
     stub = Stub.new(artist.name, album.name)
-    a = Album.or({spotify_id: album.id}, {stub: stub}).first
+    a = Album.or({spotify_id: album.id}, {stub: stub}).sort({spotify_id: -1}).first
 
     if a
       a.spotify_id = album.id unless a.spotify_id
-      a.cover = album.images.first['url'] unless a.cover
+      unless album.images.empty?
+        a.cover = album.images.first['url'] unless a.cover
+      end
     else
       a = Album.new({
         artist: artist,
@@ -40,9 +43,15 @@ class Spotify
         stub: stub,
         source: 'spotify'
       })
+      a.cover = album.images.first['url'] unless album.images.empty?
     end
 
-    a.save! if a.changed?
+    begin
+      a.save! if a.changed?
+    rescue
+      puts album.id, a.attributes
+      exit 1
+    end
     a
   end
 
@@ -53,7 +62,9 @@ class Spotify
 
     if a
       a.spotify_id = a.id
-      a.cover = artist.images.first['url'] unless a.cover
+      unless artist.images.empty?
+        a.cover = artist.images.first['url'] unless a.cover
+      end
     else
       a = Artist.new({
         name: artist.name,
@@ -61,6 +72,7 @@ class Spotify
         spotify_id: artist.id,
         source: 'spotify'
       })
+      a.cover = artist.images.first['url'] unless artist.images.empty?
     end
 
     a.save!
@@ -69,7 +81,12 @@ class Spotify
 
 
   def self.query_track url
-    sp_song = RSpotify::Track.find(url)
+    if url.is_a? String
+      sp_song = RSpotify::Track.find(url)
+    else
+      sp_song = url
+    end
+
     sp_album = sp_song.album
     sp_artist = sp_song.artists.first
 
@@ -103,8 +120,13 @@ class Spotify
 
 
   def self.track_for url
-    url = url.split('/').last
-    track = Track.where(spotify_id: url).first
+    if url.is_a? String
+      id = url.split('/').last
+      url = id
+    else
+      id = url.id
+    end
+    track = Track.where(spotify_id: id).first
     return track if track
 
     self.query_track(url)
