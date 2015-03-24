@@ -1,0 +1,6 @@
+mongoid:
+  :sessions:
+    default:
+      hosts:
+        - localhost:27017
+      database: registro
