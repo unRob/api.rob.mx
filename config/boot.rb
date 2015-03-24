@@ -63,6 +63,10 @@ module Api
       end
     end
 
+    def self.to_h
+      @@data
+    end
+
     def self.save
       File.open(self.path, 'w') do |f|
         @@data.each do |k,v|

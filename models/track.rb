@@ -2,7 +2,11 @@ class Track
   include Mongoid::Document
 
   field :name, type: String
-  field :stub, type: String
+  field :stub, type: String, default: -> {
+    comps = [artist.name, name]
+    comps << album.name if album
+    Stub.new(*comps).to_s
+  }
   field :source, type: String
   field :spotify_id, type: String
 

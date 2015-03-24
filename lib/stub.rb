@@ -1,6 +1,5 @@
 class Stub
 
-
   def initialize *args
     @str = args.reject(&:nil?).map(&:stub).join('/')
   end

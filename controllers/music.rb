@@ -76,28 +76,28 @@ class API < Sinatra::Base
 
     get '/tracks/:track' do |id|
       item = Track.find(id)
-      raise ApiError(404) unless item
+      raise ApiError.new(404) unless item
       json item.as_json
     end
 
 
     get '/albums/:album' do |id|
       item = Album.find(id)
-      raise ApiError(404) unless item
-      json item.as_json
+      raise ApiError.new(404) unless item
+      json item.as_json deep: true
     end
 
 
     get '/artists/:artist' do |id|
       item = Artist.find(id)
-      raise ApiError(404) unless item
-      json item.as_json
+      raise ApiError.new(404) unless item
+      json item.as_json deep: true
     end
 
 
     get '/genres/:genre' do |id|
       item = Genre.find(id)
-      raise ApiError(404) unless item
+      raise ApiError.new(404) unless item
       json item.as_json
     end
 

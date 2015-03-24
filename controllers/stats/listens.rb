@@ -29,7 +29,6 @@ class API < Sinatra::Base
         if params[:q]
           raise ApiError(400, 'El query debe ser un objeto') unless params[:q].is_a? Hash
           @query = params[:q].reject {|k,v| !_query.include?(k.to_sym) }
-          puts params[:q]
           @query = @query.map {|k,v|
             if _to_id.include? k.to_sym
               v = BSON::ObjectId.from_string(v)
@@ -45,12 +44,29 @@ class API < Sinatra::Base
 
 
     get do
+      query = {time: {}}
+
+      @since = @since || 1.week.ago.beginning_of_day
+      query[:time]['$gte'] = @since if @since
+      query[:time]['$lte'] = @until if @until
+
+      plays = Event::Listen.where(query).count
       tracks = Event::Listen.top(:track, 5, @since, @until, q: @query).as_json
-      # albums = Event::Listen.top(:album, 5, @since, @until, q: @query).as_json
+      albums = Event::Listen.top(:album, 5, @since, @until, q: @query).as_json
       genres = Event::Listen.top(:genre, 5, @since, @until, q: @query).as_json
       artists = Event::Listen.top(:artist, 5, @since, @until, q: @query).as_json
 
-      json({tracks: tracks, genres: genres, artists: artists})
+      json({tracks: tracks, genres: genres, artists: artists, albums: albums, plays: plays})
+    end
+
+
+
+    get '/item' do
+      result = {}
+      result[:count] = Event::Listen.where(@query).count
+      result[:since] = @since if @since
+      result[:until] = @until if @until
+      json result
     end
 
 
@@ -63,18 +79,28 @@ class API < Sinatra::Base
       limit = params[:limit] || 10
       limit = [100, limit.to_i].min
 
-      @since ||= 1.week.ago.beginning_of_day if !!@until
+      @since ||= 1.week.ago.beginning_of_day unless @until
       @until ||= @since+1.week if @since
 
-      raise ApiError.new(400, 'Fechas inválidas') unless @since && @until && @since < @until
+      raise ApiError.new(400, 'Fechas inválidas') if @since && @until && @since > @until
 
       count_query = @query || {}
-      count_query = count_query.merge({time: {'$gte'=>@since, '$lte'=> @until}})
+
+      if @since
+        count_query[:time] = {'$gte' => @since}
+      end
+
+      if @until
+        count_query[:time] ||= {}
+        count_query[:time]['$lte'] = @until
+      end
       count = Event::Listen.where(count_query).count
       items = Event::Listen.top(kind, limit, @since, @until, q: @query)
 
-
-      json({total: count, items: items, since: @since.localtime, until: @until.localtime})
+      results = {total: count, items: items}
+      results[:since] = @since.localtime if @since
+      results[:until] = @until.localtime if @until
+      json results
     end
 
   end

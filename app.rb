@@ -37,6 +37,10 @@ class API < Sinatra::Base
     self.bootstrap
   end
 
+  before do
+    response.headers['Access-Control-Allow-Origin'] = '*'
+  end
+
   not_found do
     status 404
     json({error: 'Not found'})
