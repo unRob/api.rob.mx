@@ -3,13 +3,13 @@ namespace :facebook do
   desc "Suscribirse a notificaciones"
   task :subscribe, [:event, :endpoint] do |task, args|
     updates = Koala::Facebook::RealtimeUpdates.new({
-      app_id: API::Config.facebook_id,
-      secret: API::Config.facebook_secret
+      app_id: Api::Config.facebook_id,
+      secret: Api::Config.facebook_secret
     })
 
 
     begin
-      res = updates.subscribe "user", args[:event].split.join(','), args[:endpoint], API::Config.facebook_verify
+      res = updates.subscribe "user", args[:event].split.join(','), args[:endpoint], Api::Config.facebook_verify
     rescue Koala::Facebook::ClientError => e
       puts "ERROR"
       puts e.message
@@ -23,8 +23,8 @@ namespace :facebook do
   desc "Desuscribirse a notificaciones"
   task :unsubscribe, [:event, :endpoint] do |task, args|
     updates = Koala::Facebook::RealtimeUpdates.new({
-      app_id: API::Config.facebook_id,
-      secret: API::Config.facebook_secret
+      app_id: Api::Config.facebook_id,
+      secret: Api::Config.facebook_secret
     })
 
     begin
