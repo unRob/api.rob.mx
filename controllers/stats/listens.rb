@@ -6,6 +6,7 @@ class API < Sinatra::Base
       @since = nil
       @until = nil
       @query = nil
+      @step = nil
       _to_id = [:artist, :album, :track, :genre]
       _query = _to_id+[:stub, :spotify_id]
       _periods = {y: :years, w: :weeks, m: :months, d: :days}
@@ -24,6 +25,12 @@ class API < Sinatra::Base
           end
         else
           @until = Time.at params[:until].to_i if params[:until]
+        end
+
+        if params[:step]
+          step = params[:step].to_sym
+          raise ApiError.new(400, nil, valid_steps: _periods.keys) unless _periods.keys.include?(step)
+          @step = _periods[step].to_s[0...-1].to_sym
         end
 
         if params[:q]
@@ -60,12 +67,46 @@ class API < Sinatra::Base
     end
 
 
-
-    get '/item' do
+    get '/period' do
       result = {}
-      result[:count] = Event::Listen.where(@query).count
+      count_query = {}
+      count_query[:time] = {'$gte' => @since, '$lte'=>@until}
+
+      result[:count] = Event::Listen.where(@query.merge count_query).count
       result[:since] = @since if @since
       result[:until] = @until if @until
+
+      if @step
+        items = Event::Listen.period(@since, @until, q: @query, step: @step)
+
+        curr = @since
+        curr = items.first['_id'].to_date if !items.empty? && @step == :week
+
+        range = {}
+        while curr <= @until do
+          date = curr.to_date
+          date = Date.new(date.year, date.month) if @step == :month
+          date = Date.new(date.year) if @step == :year
+          range[date] = 0
+          curr += 1.send(@step)
+        end
+
+        items = items.map {|i| [i['_id'], i['count']]}.to_h
+        puts range
+        puts items
+
+        result[:items] = range.map {|k, v|
+          v = items[k] || v
+          k = case @step
+            when :week then "#{k.year}-S#{k.cweek}"
+            when :month then "#{k.year}-#{k.month}"
+            when :year then k.year
+            else k
+          end
+          {_id: k.to_s, count: v}
+        }
+
+      end
       json result
     end
 

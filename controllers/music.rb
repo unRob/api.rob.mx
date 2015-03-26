@@ -73,6 +73,19 @@ class API < Sinatra::Base
     get '/albums', &listado
     get '/genres', &listado
 
+    get '/stub/*' do
+      comps = params[:splat].first.split('/')
+      type = comps.shift
+      stub = comps.join('/')
+
+      klass = type.titleize
+      raise ApiError.new(400, 'Tipo desconocido') unless klass && ['artist', 'track', 'album', 'genre'].include?(type)
+      item = klass.constantize.where(stub: stub).first
+
+      raise ApiError.new(404, "#{klass} inexistente") if item.nil?
+      json item.as_json
+    end
+
 
     get '/tracks/:track' do |id|
       item = Track.find(id)
