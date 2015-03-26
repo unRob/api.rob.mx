@@ -8,12 +8,14 @@ group :script, :http do
   gem 'mongoid'
   gem 'bson'
   gem 'moped'
-  gem 'activesupport', require: %w{active_support/core_ext/string active_support/core_ext/numeric}
+  gem 'activesupport', require: %w{active_support/core_ext}
 end
 
 group :script do
   gem 'nokogiri'
   gem 'nokogiri-plist'
+  gem 'strava-api-v3'
+  gem 'polylines'
 end
 
 
