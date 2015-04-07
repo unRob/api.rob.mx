@@ -62,12 +62,16 @@ class API < Sinatra::Base
     response.headers['Access-Control-Allow-Origin'] = '*'
   end
 
+  get do
+    json({version: API::VERSION})
+  end
+
   not_found do
     status 404
     json({error: 'Not found'})
   end
 
-  error ApiError do
+  error Api::Error do
     err = env['sinatra.error']
     status err.http_code
     json(err.to_json)
@@ -78,12 +82,5 @@ class API < Sinatra::Base
     err = env['sinatra.error']
     json({error: err.message})
   end
-
-  # routes.each do |verb, paths|
-  #   paths.each do |route|
-  #     route = route[0].source.gsub(/\\[Az]/, '')
-  #     puts "#{verb} #{route}"
-  #   end
-  # end
 
 end
