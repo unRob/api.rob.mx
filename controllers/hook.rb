@@ -15,7 +15,6 @@ class API < Sinatra::Base
     post '/listen' do
       last = Event::Listen.last_event_time
       body = request.body.read
-      puts last, body
       query = ['/me/music.listens', since: last.to_i]
       # si tan solo `since` jalara en este endpoint...
 

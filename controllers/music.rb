@@ -30,7 +30,6 @@ class API < Sinatra::Base
       skip = params[:p].to_i.abs if params[:p]
       klass = kind.to_s.titleize.constantize
       query = query.merge(data)
-      puts query, skip, limit
       json({items: klass.where(query).skip(skip).limit(limit)})
     end
 

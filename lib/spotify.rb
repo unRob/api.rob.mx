@@ -61,7 +61,7 @@ class Spotify
     a = Artist.or({spotify_id: artist.id}, {stub: stub}).first
 
     if a
-      a.spotify_id = a.id
+      a.spotify_id = artist.id
       unless artist.images.empty?
         a.cover = artist.images.first['url'] unless a.cover
       end
