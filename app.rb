@@ -63,7 +63,7 @@ class API < Sinatra::Base
   end
 
   get '/' do
-    json({version: API::VERSION})
+    json({version: Api::VERSION})
   end
 
   not_found do
