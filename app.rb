@@ -62,7 +62,7 @@ class API < Sinatra::Base
     response.headers['Access-Control-Allow-Origin'] = '*'
   end
 
-  get do
+  get '/' do
     json({version: API::VERSION})
   end
 
