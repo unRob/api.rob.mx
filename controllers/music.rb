@@ -8,7 +8,7 @@ class API < Sinatra::Base
       _query = _to_id+[:stub, :spotify_id]
       kind = kind.gsub(/s$/, '')
 
-      raise ApiError(400, 'Tipo de item inválido', validos: _to_id) if !_to_id.include? kind.to_sym
+      raise Api::Error(400, 'Tipo de item inválido', validos: _to_id) if !_to_id.include? kind.to_sym
 
       data = params.reject {|k,v| !_query.include?(k.to_sym) }
       limit = params[:limit] && params[:limit].to_i || 10
@@ -39,7 +39,7 @@ class API < Sinatra::Base
       _to_id = [:artist, :album, :track, :genre]
       _query = _to_id+[:stub, :spotify_id]
 
-      raise ApiError.new(400, 'Tipo de item inválido', validos: _to_id) if !_to_id.include? kind.to_sym
+      raise Api::Error.new(400, 'Tipo de item inválido', validos: _to_id) if !_to_id.include? kind.to_sym
 
       limit = params[:limit] && params[:limit].to_i || 10
 
@@ -78,38 +78,38 @@ class API < Sinatra::Base
       stub = comps.join('/')
 
       klass = type.titleize
-      raise ApiError.new(400, 'Tipo desconocido') unless klass && ['artist', 'track', 'album', 'genre'].include?(type)
+      raise Api::Error.new(400, 'Tipo desconocido') unless klass && ['artist', 'track', 'album', 'genre'].include?(type)
       item = klass.constantize.where(stub: stub).first
 
-      raise ApiError.new(404, "#{klass} inexistente") if item.nil?
+      raise Api::Error.new(404, "#{klass} inexistente") if item.nil?
       json item.as_json
     end
 
 
     get '/tracks/:track' do |id|
       item = Track.find(id)
-      raise ApiError.new(404) unless item
+      raise Api::Error.new(404) unless item
       json item.as_json
     end
 
 
     get '/albums/:album' do |id|
       item = Album.find(id)
-      raise ApiError.new(404) unless item
+      raise Api::Error.new(404) unless item
       json item.as_json deep: true
     end
 
 
     get '/artists/:artist' do |id|
       item = Artist.find(id)
-      raise ApiError.new(404) unless item
+      raise Api::Error.new(404) unless item
       json item.as_json deep: true
     end
 
 
     get '/genres/:genre' do |id|
       item = Genre.find(id)
-      raise ApiError.new(404) unless item
+      raise Api::Error.new(404) unless item
       json item.as_json
     end
 
