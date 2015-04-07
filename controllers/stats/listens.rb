@@ -92,8 +92,6 @@ class API < Sinatra::Base
         end
 
         items = items.map {|i| [i['_id'], i['count']]}.to_h
-        puts range
-        puts items
 
         result[:items] = range.map {|k, v|
           v = items[k] || v

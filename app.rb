@@ -3,7 +3,7 @@ I18n.available_locales= [:es, :en]
 
 class API < Sinatra::Base
 
-  set :environment, :production
+  # set :environment, :production
   set :root, ENV['app_root']
 
   require_relative 'config/boot.rb'
@@ -17,6 +17,7 @@ class API < Sinatra::Base
   register Sinatra::ConfigFile
   register Sinatra::JSON
   register Sinatra::Namespace
+  # register SSE
 
   Dir["#{ENV['app_root']}/config/*.yml"].each do |f|
     config_file f
@@ -33,9 +34,29 @@ class API < Sinatra::Base
     end
   end
 
+
   configure do
     self.bootstrap
   end
+
+#   get '/test' do
+#     <<-STR
+#     <div id="messages"></div>
+
+#     <script>
+#       var source = new EventSource('/stream/listens');
+
+#       source.addEventListener('listens', function(evt) {
+#         console.log(evt);
+#       }, false);
+#     </script>
+# STR
+#   end
+
+#   get '/publish' do
+#     publish :listens, {a: 'b'}
+#     'ok!'
+#   end
 
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
