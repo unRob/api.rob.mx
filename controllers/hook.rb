@@ -23,14 +23,15 @@ class API < Sinatra::Base
         track = Spotify.track_for(event['song']['url'])
         attrs = track.attributes
 
-        Event::Listen.create({
+        evt = {
           track: track.id,
-          album: attrs[:album_id],
-          genre: attrs[:genre_id],
-          artist: attrs[:artist_id],
+          album: attrs['album_id'],
+          genre: attrs['genre_id'],
+          artist: attrs['artist_id'],
           source: 'spotify',
           time: time
-        })
+        }
+        Event::Listen.create(evt)
       end
 
       'ok'
@@ -60,4 +61,3 @@ class API < Sinatra::Base
 
   end
 end
-

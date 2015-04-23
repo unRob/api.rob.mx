@@ -1,5 +1,18 @@
 namespace :music do
 
+  desc "Descaga eventos sin albums and stuff"
+  task :albumiza => :bootstrap do
+    evts = Event::Listen.where({artist: nil}).each do |evt|
+      track = Track.find(evt.track)
+      puts track.stub
+      attrs = track.attributes
+      evt.album = attrs['album_id']
+      evt.genre = attrs['genre_id']
+      evt.artist = attrs['artist_id']
+      evt.save
+    end
+  end
+
   desc "Importa la librería de iTunes"
   task :itunes => :bootstrap do
     iml = File.expand_path('~/Music/iTunes/iTunes Music Library.xml')
