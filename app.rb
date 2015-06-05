@@ -106,15 +106,15 @@ class API < Sinatra::Base
 
 
   get '/privacy' do
-    json {message: 'Rob no hará cosas malas con los datos de Rob, porqué es la misma persona'}
+    json({message: 'Rob no hará cosas malas con los datos de Rob, porqué es la misma persona'})
   end
 
   get '/terms' do
-    json {message: 'Al usar este API aceptas que no va a funcionar si no quiero que funcione, y se provee AS-IS'}
+    json({message: 'Al usar este API aceptas que no va a funcionar si no quiero que funcione, y se provee AS-IS'})
   end
 
   get '/support' do
-    json {message: 'Busca a @unRob en twitter, pero no creo que te ayude'}
+    json({message: 'Busca a @unRob en twitter, pero no creo que te ayude'})
   end
 
 
