@@ -17,11 +17,11 @@ GEM
     connection_pool (2.1.2)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
-    httparty (0.13.3)
+    httparty (0.13.5)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.7.0)
-    json (1.8.2)
+    json (1.8.3)
     koala (1.11.1)
       addressable
       faraday
@@ -53,7 +53,7 @@ GEM
     rack-test (0.6.3)
       rack (>= 1.0)
     redis (3.2.1)
-    simplespotify (0.0.2)
+    simplespotify (0.0.4)
       httparty
     sinatra (1.4.5)
       rack (~> 1.4)

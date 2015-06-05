@@ -2,15 +2,15 @@ class Spotify
 
 
   def self.album(id)
-    SimpleSpotify.default_cient.album(id)
+    SimpleSpotify.default_client.album(id)
   end
 
   def self.track id
-    SimpleSpotify.default_cient.track(id)
+    SimpleSpotify.default_client.track(id)
   end
 
   def self.artist id
-    SimpleSpotify.default_cient.artist(id)
+    SimpleSpotify.default_client.artist(id)
   end
 
 
@@ -44,6 +44,7 @@ class Spotify
         stub: stub,
         source: 'spotify'
       })
+      puts album.images.first
       a.cover = album.images.first.url unless album.images.empty?
     end
 
