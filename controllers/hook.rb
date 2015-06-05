@@ -36,14 +36,15 @@ class API < Sinatra::Base
         Event::Listen.create(evt)
 
         if playlist
+          max = Api::Config.spotify_max_tracks.to_i
           begin
-            if playlist.tracks.total >= Api::Config.spotify_max_tracks
-              extra = (playlist.tracks.total - Api::Config.spotify_max_tracks)
+            if playlist.tracks.total >= max
+              extra = (playlist.tracks.total - max)
               playlist.remove_tracks(positions: (0..extra).to_a)
             end
             playlist.add_tracks(track.spotify_id)
           rescue Exception => e
-            puts e.message
+            puts e
           end
         end
       end
@@ -83,34 +84,24 @@ class API < Sinatra::Base
         halt(403)
       end
 
-      client_id = Api::Config.spotify_key
       redirect = request.url.gsub(/\?.+/, '')
 
       if callback == 'done'
         code = params[:code]
-        require 'net/http'
-
-        uri = URI.parse "https://accounts.spotify.com/api/token"
-        params = {
-          grant_type: 'authorization_code',
-          redirect_uri: redirect,
-          code: code,
-          client_id: client_id,
-          client_secret: Api::Config.spotify_secret
-        }
-        res = Net::HTTP.post_form(uri, params)
-        body = JSON.parse(res.body, symbolize_names: true)
-
-        if body[:access_token]
-          Api::Config.spotify_token = body[:access_token]
-          Api::Config.refresh_token = body[:refresh_token]
+        begin
+          auth = SimpleSpotify::Authorization.from_code code, client: SimpleSpotify.default_client, redirect: redirect
+          Api::Config.spotify_token = auth.access_token
+          Api::Config.spotify_refresh = auth.refresh_token
           Api::Config.save
+        rescue Exception => e
+          json({cagation: e.message})
         else
-          json(res.body)
+
         end
       else
-        redirect += '/done'
-        redirect to("https://accounts.spotify.com/authorize?client_id=#{client_id}&response_type=code&scope=playlist-modify-public user-read-private&redirect_uri=#{redirect}&show_dialog=true")
+        login_url = SimpleSpotify::Authorization.login_uri redirect+'/done', SimpleSpotify.default_client, scope: 'playlist-modify-public user-read-private'
+
+        redirect to(login_url)
       end
 
 

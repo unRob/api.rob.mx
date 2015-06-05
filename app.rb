@@ -28,11 +28,11 @@ class API < Sinatra::Base
     set :facebook_oauth, Koala::Facebook::OAuth.new(Api::Config.facebook_id, Api::Config.facebook_secret)
 
     client = SimpleSpotify::Client.new Api::Config.spotify_key, Api::Config.spotify_secret
-    client.session = SimpleSpotify::Authorization.new({
+    client.session = SimpleSpotify::Authorization.new(
       access_token: Api::Config.spotify_token,
       refresh_token: Api::Config.spotify_refresh,
       client: client
-    })
+    )
     set :spotify_client, client
 
     client.session.on_refresh do |sess|
@@ -61,48 +61,50 @@ class API < Sinatra::Base
   end
 
 
-  get '/test' do
-    last = Event::Listen.last_event_time
-    body = {entry: [
-      start_time: Time.now.to_s
-    ]}.to_json
-    query = ['/me/music.listens', since: last.to_i]
-    # si tan solo `since` jalara en este endpoint...
+  # get '/test' do
+  #   last = Event::Listen.last_event_time
+  #   body = {entry: [
+  #     start_time: Time.now.to_s
+  #   ]}.to_json
+  #   query = ['/me/music.listens', since: last.to_i]
+  #   # si tan solo `since` jalara en este endpoint...
 
-    tracks = []
-    playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
+  #   tracks = []
+  #   playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
 
-    Event::Facebook.process(body, query) do |event, time|
-      next unless time > last
-      track = Spotify.track_for(event['song']['url'])
-      tracks << track
-      attrs = track.attributes
+  #   Event::Facebook.process(body, query) do |event, time|
+  #     next unless time > last
+  #     track = Spotify.track_for(event['song']['url'])
+  #     tracks << track
+  #     attrs = track.attributes
 
-      evt = {
-        track: track.id,
-        album: attrs['album_id'],
-        genre: attrs['genre_id'],
-        artist: attrs['artist_id'],
-        source: 'spotify',
-        time: time
-      }
-      Event::Listen.create(evt)
+  #     evt = {
+  #       track: track.id,
+  #       album: attrs['album_id'],
+  #       genre: attrs['genre_id'],
+  #       artist: attrs['artist_id'],
+  #       source: 'spotify',
+  #       time: time
+  #     }
+  #     Event::Listen.create(evt)
 
-      if playlist
-        begin
-          if playlist.tracks.total >= Api::Config.spotify_max_tracks
-            extra = (playlist.tracks.total - Api::Config.spotify_max_tracks)
-            playlist.remove_tracks(positions: (0..extra).to_a)
-          end
-          playlist.add_tracks(track.spotify_id)
-        rescue Exception => e
-          puts e.message
-        end
-      end
-    end
+  #     puts track.inspect
+  #     if playlist
+  #       max = Api::Config.spotify_max_tracks.to_i
+  #       begin
+  #         if playlist.tracks.total >= max
+  #           extra = (playlist.tracks.total - max)
+  #           playlist.remove_tracks(positions: (0..extra).to_a)
+  #         end
+  #         playlist.add_tracks(track.spotify_id)
+  #       rescue Exception => e
+  #         puts e
+  #       end
+  #     end
+  #   end
 
-    json tracks
-  end
+  #   json tracks
+  # end
 
 
   get '/privacy' do
