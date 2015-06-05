@@ -2,6 +2,7 @@ namespace :facebook do
 
   desc "Suscribirse a notificaciones"
   task :subscribe, [:event, :endpoint] do |task, args|
+
     updates = Koala::Facebook::RealtimeUpdates.new({
       app_id: Api::Config.facebook_id,
       secret: Api::Config.facebook_secret
@@ -19,6 +20,14 @@ namespace :facebook do
     end
   end
   task :subscribe => :bootstrap
+
+  task :list => :bootstrap do
+    updates = Koala::Facebook::RealtimeUpdates.new({
+      app_id: Api::Config.facebook_id,
+      secret: Api::Config.facebook_secret
+    })
+    puts updates.list_subscriptions
+  end
 
   desc "Desuscribirse a notificaciones"
   task :unsubscribe, [:event, :endpoint] do |task, args|

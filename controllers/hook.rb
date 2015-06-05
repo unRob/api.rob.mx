@@ -6,8 +6,10 @@ class API < Sinatra::Base
       token = Api::Config.facebook_verify
       puts 'verificando suscripción'
       if Koala::Facebook::RealtimeUpdates.meet_challenge(params, token)
+        puts 'validated'
         params['hub.challenge']
       else
+        puts 'nel'
         'nel'
       end
     end
@@ -21,9 +23,18 @@ class API < Sinatra::Base
       puts "ping /listens"
 
       playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
+      puts playlist.nil?
 
       Event::Facebook.process(body, query) do |event, time|
-        next unless time > last
+        unless time > last
+          begin
+            puts "skipping #{event['song']['url']}"
+          rescue Exception
+            puts "skipping"
+          end
+          next
+        end
+        puts "PROCESSING #{event['song']['url']}"
         track = Spotify.track_for(event['song']['url'])
         attrs = track.attributes
 
