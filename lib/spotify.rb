@@ -1,15 +1,16 @@
 class Spotify
 
+
   def self.album(id)
-    RSpotify::Album.find(id)
+    SimpleSpotify.default_cient.album(id)
   end
 
   def self.track id
-    RSpotify::Track.find(id)
+    SimpleSpotify.default_cient.track(id)
   end
 
   def self.artist id
-    RSpotify::Artist.find(id)
+    SimpleSpotify.default_cient.artist(id)
   end
 
 
@@ -33,7 +34,7 @@ class Spotify
     if a
       a.spotify_id = album.id unless a.spotify_id
       unless album.images.empty?
-        a.cover = album.images.first['url'] unless a.cover
+        a.cover = album.images.first.url unless a.cover
       end
     else
       a = Album.new({
@@ -43,7 +44,7 @@ class Spotify
         stub: stub,
         source: 'spotify'
       })
-      a.cover = album.images.first['url'] unless album.images.empty?
+      a.cover = album.images.first.url unless album.images.empty?
     end
 
     begin
@@ -63,7 +64,7 @@ class Spotify
     if a
       a.spotify_id = artist.id
       unless artist.images.empty?
-        a.cover = artist.images.first['url'] unless a.cover
+        a.cover = artist.images.first.url unless a.cover
       end
     else
       a = Artist.new({
@@ -72,7 +73,7 @@ class Spotify
         spotify_id: artist.id,
         source: 'spotify'
       })
-      a.cover = artist.images.first['url'] unless artist.images.empty?
+      a.cover = artist.images.first.url unless artist.images.empty?
     end
 
     a.save!
@@ -82,13 +83,13 @@ class Spotify
 
   def self.query_track url
     if url.is_a? String
-      sp_song = RSpotify::Track.find(url)
+      sp_song = self.track(url)
     else
       sp_song = url
     end
 
-    sp_album = sp_song.album
-    sp_artist = sp_song.artists.first
+    sp_album = sp_song.album.fetch!
+    sp_artist = sp_song.artists.first.fetch!
 
     genres = sp_artist.genres.concat(sp_album.genres)+['indie']
 

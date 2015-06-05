@@ -29,16 +29,18 @@ module SSE
     app.helpers Helpers
 
     app.set(:stream_mount, '/stream') unless app.respond_to? :stream_mount
-    app.set(:listeners,  Hash.new {|h,k| h[k] = [] })
+    app.set(:listeners, Hash.new {|h,k| h[k] = [] })
 
     app.get "#{app.stream_mount}/*" do
       channels = params[:splat].first.split(',')
       channels = channels.map(&:to_sym)
 
       content_type 'text/event-stream'
+      response.headers['X-Accel-Buffering'] = 'off'
 
       stream(:keep_open) do |conn|
-        puts "Aceptando conexión a @#{channels.join(', ')}"
+        puts "Aceptando conexión a ##{channels.join(', ')}"
+
         channels.each do |channel|
           settings.listeners[channel] << conn
         end
@@ -46,7 +48,7 @@ module SSE
         conn.callback do
           puts 'disconnect'
           channels.each do |channel|
-            settings.listeners[channel] << conn
+            settings.listeners[channel].delete(conn)
           end
         end
       end

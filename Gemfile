@@ -3,11 +3,12 @@ source 'https://rubygems.org'
 group :script, :http do
   gem 'sinatra'
   gem 'sinatra-contrib'
-  gem 'rspotify'
+  # gem 'rspotify'
   gem 'koala'
   gem 'mongoid'
   gem 'bson'
   gem 'moped'
+  gem 'simplespotify'
   gem 'activesupport', require: %w{active_support/core_ext}
 end
 
