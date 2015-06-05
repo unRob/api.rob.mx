@@ -18,6 +18,8 @@ class API < Sinatra::Base
       query = ['/me/music.listens', since: last.to_i]
       # si tan solo `since` jalara en este endpoint...
 
+      puts "ping /listens"
+
       playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
 
       Event::Facebook.process(body, query) do |event, time|
@@ -48,6 +50,8 @@ class API < Sinatra::Base
           end
         end
       end
+
+      puts "DONE /listens"
 
       'ok'
     end #POST /music

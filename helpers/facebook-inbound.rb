@@ -7,9 +7,8 @@ module Event
         nuevo = auth.exchange_access_token(Api::Config.facebook_access_token)
       rescue Exception => e
         puts e.message
-        halt(404)
       end
-      API.set :facebook, nuevo
+      API.set :facebook,  Koala::Facebook::API.new(nuevo)
       Api::Config.facebook_secret= nuevo
       Api::Config.save
     end
