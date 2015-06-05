@@ -26,7 +26,19 @@ class API < Sinatra::Base
   def self.bootstrap
     set :facebook, Koala::Facebook::API.new(Api::Config.facebook_access_token)
     set :facebook_oauth, Koala::Facebook::OAuth.new(Api::Config.facebook_id, Api::Config.facebook_secret)
-    RSpotify.authenticate Api::Config.spotify_key, Api::Config.spotify_secret
+
+    client = SimpleSpotify::Client.new Api::Config.spotify_key, Api::Config.spotify_secret
+    client.session = SimpleSpotify::Authorization.new({
+      access_token: Api::Config.spotify_token,
+      refresh_token: Api::Config.spotify_refresh,
+      client: client
+    })
+    set :spotify_client, client
+
+    client.session.on_refresh do |sess|
+      Api::Config.spotify_token = sess.access_token
+      Api::Config.save
+    end
 
     Mongoid.raise_not_found_error = false
     Mongoid.configure do |config|
@@ -39,24 +51,6 @@ class API < Sinatra::Base
     self.bootstrap
   end
 
-#   get '/test' do
-#     <<-STR
-#     <div id="messages"></div>
-
-#     <script>
-#       var source = new EventSource('/stream/listens');
-
-#       source.addEventListener('listens', function(evt) {
-#         console.log(evt);
-#       }, false);
-#     </script>
-# STR
-#   end
-
-#   get '/publish' do
-#     publish :listens, {a: 'b'}
-#     'ok!'
-#   end
 
   before do
     response.headers['Access-Control-Allow-Origin'] = '*'
@@ -65,6 +59,64 @@ class API < Sinatra::Base
   get '/' do
     json({version: Api::VERSION})
   end
+
+
+  get '/test' do
+    last = Event::Listen.last_event_time
+    body = {entry: [
+      start_time: Time.now.to_s
+    ]}.to_json
+    query = ['/me/music.listens', since: last.to_i]
+    # si tan solo `since` jalara en este endpoint...
+
+    tracks = []
+    playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
+
+    Event::Facebook.process(body, query) do |event, time|
+      next unless time > last
+      track = Spotify.track_for(event['song']['url'])
+      tracks << track
+      attrs = track.attributes
+
+      evt = {
+        track: track.id,
+        album: attrs['album_id'],
+        genre: attrs['genre_id'],
+        artist: attrs['artist_id'],
+        source: 'spotify',
+        time: time
+      }
+      Event::Listen.create(evt)
+
+      if playlist
+        begin
+          if playlist.tracks.total >= Api::Config.spotify_max_tracks
+            extra = (playlist.tracks.total - Api::Config.spotify_max_tracks)
+            playlist.remove_tracks(positions: (0..extra).to_a)
+          end
+          playlist.add_tracks(track.spotify_id)
+        rescue Exception => e
+          puts e.message
+        end
+      end
+    end
+
+    json tracks
+  end
+
+
+  get '/privacy' do
+    json {message: 'Rob no hará cosas malas con los datos de Rob, porqué es la misma persona'}
+  end
+
+  get '/terms' do
+    json {message: 'Al usar este API aceptas que no va a funcionar si no quiero que funcione, y se provee AS-IS'}
+  end
+
+  get '/support' do
+    json {message: 'Busca a @unRob en twitter, pero no creo que te ayude'}
+  end
+
 
   not_found do
     status 404

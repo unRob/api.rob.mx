@@ -158,7 +158,7 @@ namespace :music do
 
       sp_track = cache[query]
       if sp_track.nil?
-        sp_track = RSpotify::Base.search(query, 'track', market: 'mx').first
+        sp_track = SimpleSpotify.default_client.search(:track, query, market: 'mx').first
         if sp_track.nil?
           puts "!----FAIL---- #{sib}"
           next

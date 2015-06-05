@@ -4,7 +4,7 @@ Un API para registrar muchas de las pendejadas que hago.
 
 ## Apps
 
-- (Rob escucha)[http://rob.mx/escucha] música y aquí lo documento
+- [Rob escucha](http://rob.mx/escucha) música y aquí lo documento
 
 ## Planes
 
