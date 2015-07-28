@@ -13,10 +13,15 @@ GEM
     addressable (2.3.7)
     backports (3.6.4)
     bson (2.3.0)
+    buftok (0.2.0)
     builder (3.2.2)
     connection_pool (2.1.2)
+    equalizer (0.0.11)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
+    http (0.6.4)
+      http_parser.rb (~> 0.6.0)
+    http_parser.rb (0.6.0)
     httparty (0.13.5)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
@@ -26,6 +31,8 @@ GEM
       addressable
       faraday
       multi_json
+    memoizable (0.4.2)
+      thread_safe (~> 0.3, >= 0.3.1)
     mini_portile (0.6.2)
     minitest (5.5.1)
     mongoid (4.0.2)
@@ -40,6 +47,7 @@ GEM
     multi_json (1.11.0)
     multi_xml (0.5.5)
     multipart-post (2.0.0)
+    naught (1.0.0)
     nokogiri (1.6.6.2)
       mini_portile (~> 0.6.0)
     nokogiri-plist (0.5.0)
@@ -53,6 +61,7 @@ GEM
     rack-test (0.6.3)
       rack (>= 1.0)
     redis (3.2.1)
+    simple_oauth (0.3.1)
     simplespotify (0.0.4)
       httparty
     sinatra (1.4.5)
@@ -71,8 +80,21 @@ GEM
       multi_json
     thread_safe (0.3.4)
     tilt (1.4.1)
+    twitter (5.14.0)
+      addressable (~> 2.3)
+      buftok (~> 0.2.0)
+      equalizer (~> 0.0.9)
+      faraday (~> 0.9.0)
+      http (~> 0.6.0)
+      http_parser.rb (~> 0.6.0)
+      json (~> 1.8)
+      memoizable (~> 0.4.0)
+      naught (~> 1.0)
+      simple_oauth (~> 0.3.0)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    wolfram (0.2.1)
+      nokogiri (>= 1.4.3)
 
 PLATFORMS
   ruby
@@ -80,6 +102,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport
   bson
+  httparty
   koala
   mongoid
   moped
@@ -91,3 +114,5 @@ DEPENDENCIES
   sinatra
   sinatra-contrib
   strava-api-v3
+  twitter
+  wolfram

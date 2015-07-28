@@ -17,26 +17,34 @@ class API < Sinatra::Base
   register Sinatra::ConfigFile
   register Sinatra::JSON
   register Sinatra::Namespace
-  # register SSE
 
   Dir["#{ENV['app_root']}/config/*.yml"].each do |f|
     config_file f
   end
 
   def self.bootstrap
-    set :facebook, Koala::Facebook::API.new(Api::Config.facebook_access_token)
-    set :facebook_oauth, Koala::Facebook::OAuth.new(Api::Config.facebook_id, Api::Config.facebook_secret)
+    fbconf = Api::Config.facebook
+    set :facebook, Koala::Facebook::API.new(fbconf[:access_token])
+    set :facebook_oauth, Koala::Facebook::OAuth.new(fbconf[:id], fbconf[:secret])
 
-    client = SimpleSpotify::Client.new Api::Config.spotify_key, Api::Config.spotify_secret
+    client = SimpleSpotify::Client.new Api::Config.spotify[:key], Api::Config.spotify[:secret]
     client.session = SimpleSpotify::Authorization.new(
-      access_token: Api::Config.spotify_token,
-      refresh_token: Api::Config.spotify_refresh,
+      access_token: Api::Config.spotify[:token],
+      refresh_token: Api::Config.spotify[:refresh],
       client: client
     )
     set :spotify_client, client
 
+    twitter = Twitter::REST::Client.new do |config|
+        config.consumer_key        = Api::Config.twitter[:key]
+        config.consumer_secret     = Api::Config.twitter[:secret]
+        config.access_token        = Api::Config.twitter[:token]
+        config.access_token_secret = Api::Config.twitter[:access_token]
+    end
+    set :twitter, twitter
+
     client.session.on_refresh do |sess|
-      Api::Config.spotify_token = sess.access_token
+      Api::Config.spotify[:token] = sess.access_token
       Api::Config.save
     end
 
@@ -49,6 +57,11 @@ class API < Sinatra::Base
 
   configure do
     self.bootstrap
+
+    if ENV['SERVER_NAME']
+      scheme = ENV['HTTPS'] ? 'https://' : 'http://';
+      Api::Stream.configure(scheme+ENV['SERVER_NAME']+'/stream/publish');
+    end
   end
 
 
@@ -58,6 +71,16 @@ class API < Sinatra::Base
 
   get '/' do
     json({version: Api::VERSION})
+  end
+
+  get '/ping' do
+    Api::Stream.publish(:api, :ping, {version: Api::VERSION}).body
+  end
+
+  get '/test' do
+    track = Spotify.track_for('5HQAZ4yJEli9jb55084U9N')
+    Api::Stream.publish(:listens, :track, track)
+    json track
   end
 
 

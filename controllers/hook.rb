@@ -3,7 +3,7 @@ class API < Sinatra::Base
   namespace '/hook' do
 
     get '/listen' do
-      token = Api::Config.facebook_verify
+      token = Api::Config.facebook[:verify]
       puts 'verificando suscripción'
       if Koala::Facebook::RealtimeUpdates.meet_challenge(params, token)
         puts 'validated'
@@ -60,6 +60,8 @@ class API < Sinatra::Base
             puts e
           end
         end
+
+        Api::Stream.publish(:listens, :track, track.as_json)
       end
 
       puts "DONE /listens"
@@ -72,11 +74,11 @@ class API < Sinatra::Base
     # Logins
     #--------------
     get '/fb-login/:secret' do |secret|
-      if Api::Config.facebook_verify != secret
+      if Api::Config.facebook[:verify] != secret
         halt(403)
       end
-      id = Api::Config.facebook_id
-      secret = Api::Config.facebook_secret
+      id = Api::Config.facebook[:id]
+      secret = Api::Config.facebook[:secret]
       redirect = request.url
       oauth = Koala::Facebook::OAuth.new(id, secret, redirect)
 
@@ -87,9 +89,10 @@ class API < Sinatra::Base
         redirect to oauth.url_for_oauth_code(opts)
       else
         access_token = oauth.get_access_token(params[:code])
-        Api::Config.facebook_access_token = access_token
+        Api::Config.facebook[:access_token] = access_token
         Api::Config.save
-        Api::Config.facebook_access_token
+        # Api::Config.facebook[:access_token]
+        'yay!'
       end
     end
 
@@ -111,7 +114,7 @@ class API < Sinatra::Base
         rescue Exception => e
           json({cagation: e.message})
         else
-
+          'yay!'
         end
       else
         login_url = SimpleSpotify::Authorization.login_uri redirect+'/done', SimpleSpotify.default_client, scope: 'playlist-modify-public user-read-private'

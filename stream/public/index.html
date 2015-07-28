@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ES</title>
+</head>
+<body>
+
+	<script src="/live/client.js"></script>
+	<script>
+	channels = ['listens', 'tweets'];
+
+	var source = '//'+window.location.host+'/live';
+	var stream = new SSE.Stream(source, channels);
+
+	stream.on('open', function(){
+		console.log('open');
+	});
+
+	stream.on('error', function(kind){
+		console.log('crap: '+kind);
+	});
+
+	stream.on('listens', 'track:listen', function(evt){
+		console.log(evt.channel, evt.name, evt.data);
+	});
+
+	</script>
+
+</body>
+</html>

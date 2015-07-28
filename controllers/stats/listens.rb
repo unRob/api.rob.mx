@@ -3,6 +3,7 @@ class API < Sinatra::Base
   namespace '/stats/listens' do
 
     before do
+      pass if request.path_info.start_with? '/stats/listens/last'
       @since = nil
       @until = nil
       @query = nil
@@ -64,6 +65,19 @@ class API < Sinatra::Base
       artists = Event::Listen.top(:artist, 5, @since, @until, q: @query).as_json
 
       json({tracks: tracks, genres: genres, artists: artists, albums: albums, plays: plays})
+    end
+
+
+    get '/last/:kind' do |kind|
+      kinds = %w{artist album track genre}
+      raise Api::Error.new(404, "No tengo eventos para #{kind}", validos: kinds) unless kinds.include?(kind)
+
+      event = Event::Listen.only(kind.to_sym, :time, :source, :id).sort(time: -1).first
+      item = kind.capitalize.constantize.find(event.send(kind.to_sym))
+
+      data = {time: event.time, source: event.source, id: event.id.to_s}
+      data[kind] = item.as_json;
+      json(data)
     end
 
 

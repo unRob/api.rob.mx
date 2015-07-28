@@ -2,3 +2,5 @@ env
 restart.txt
 log
 tmp
+node_modules
+env.yaml

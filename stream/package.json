@@ -1,0 +1,14 @@
+{
+  "name": "api-rob-mx-live",
+  "version": "0.0.1",
+  "description": "api.rob.mx/live",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Roberto Hidalgo",
+  "license": "Patito, WTFPL",
+  "dependencies": {
+    "sse": "0.0.6"
+  }
+}

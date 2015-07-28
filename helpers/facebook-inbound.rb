@@ -2,14 +2,14 @@ module Event
   module Facebook
 
     def self.refresh_token
-      auth = Koala::Facebook::OAuth.new Api::Config.facebook_id, Api::Config.facebook_secret
+      auth = Koala::Facebook::OAuth.new Api::Config.facebook[:id], Api::Config.facebook[:secret]
       begin
-        nuevo = auth.exchange_access_token(Api::Config.facebook_access_token)
+        nuevo = auth.exchange_access_token(Api::Config.facebook[:access_token])
       rescue Exception => e
         puts e.message
       end
       API.set :facebook,  Koala::Facebook::API.new(nuevo)
-      Api::Config.facebook_secret= nuevo
+      Api::Config.facebook[:access_token] = nuevo
       Api::Config.save
     end
 
