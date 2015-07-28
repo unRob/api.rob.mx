@@ -60,7 +60,7 @@ class API < Sinatra::Base
 
     if ENV['SERVER_NAME']
       scheme = ENV['HTTPS'] ? 'https://' : 'http://';
-      Api::Stream.configure(scheme+ENV['SERVER_NAME']+'/stream/publish');
+      Api::Stream.configure('http://127.0.0.1/stream/publish', ENV['SERVER_NAME']);
     end
   end
 
