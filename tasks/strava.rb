@@ -2,7 +2,7 @@ namespace :strava do
 
   desc "Descarga actividades nuevas de Strava"
   task :poll => :bootstrap do |task, args|
-    @client = Strava::Api::V3::Client.new(access_token: Api::Config.strava_token)
+    @client = Strava::Api::V3::Client.new(access_token: Api::Config.strava[:token])
     last_ride = Event::Ride.last_event_time
     activities = @client.list_athlete_activities after: last_ride
 
