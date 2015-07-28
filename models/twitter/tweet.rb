@@ -83,7 +83,7 @@ class Tweet
       end.transpose.map {|cs| cs.inject(:+) / (6*area)}
 
 
-      geo = {'type': 'Point', coordinates: centro}
+      geo = {type: 'Point', coordinates: centro}
     end
 
     data = {
