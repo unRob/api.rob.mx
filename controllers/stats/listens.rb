@@ -1,4 +1,4 @@
-class API < Sinatra::Base
+class API::V1 < Sinatra::Base
   register Sinatra::Namespace
   namespace '/stats/listens' do
 
@@ -20,7 +20,7 @@ class API < Sinatra::Base
             @until = Time.now
           else
             count, period = params[:period].scan(/(\d+)(#{_periods.keys.join('|')})/).flatten
-            raise Api::Error.new(400, nil, valid_periods: _periods.keys) if count.nil? or period.nil?
+            raise Error.new(400, nil, valid_periods: _periods.keys) if count.nil? or period.nil?
             @until ||= Time.now
             @since = @until - count.to_i.send(_periods[period.to_sym])
           end
@@ -30,12 +30,12 @@ class API < Sinatra::Base
 
         if params[:step]
           step = params[:step].to_sym
-          raise Api::Error.new(400, nil, valid_steps: _periods.keys) unless _periods.keys.include?(step)
+          raise Error.new(400, nil, valid_steps: _periods.keys) unless _periods.keys.include?(step)
           @step = _periods[step].to_s[0...-1].to_sym
         end
 
         if params[:q]
-          raise Api::Error(400, 'El query debe ser un objeto') unless params[:q].is_a? Hash
+          raise Error(400, 'El query debe ser un objeto') unless params[:q].is_a? Hash
           @query = params[:q].reject {|k,v| !_query.include?(k.to_sym) }
           @query = @query.map {|k,v|
             if _to_id.include? k.to_sym
@@ -70,7 +70,7 @@ class API < Sinatra::Base
 
     get '/last/:kind' do |kind|
       kinds = %w{artist album track genre}
-      raise Api::Error.new(404, "No tengo eventos para #{kind}", validos: kinds) unless kinds.include?(kind)
+      raise Error.new(404, "No tengo eventos para #{kind}", validos: kinds) unless kinds.include?(kind)
 
       event = Event::Listen.only(kind.to_sym, :time, :source, :id).sort(time: -1).first
       item = kind.capitalize.constantize.find(event.send(kind.to_sym))
@@ -127,7 +127,7 @@ class API < Sinatra::Base
       kind = kind.gsub(/s$/, '').to_sym
       kinds = [:artist, :album, :genre, :track]
 
-      raise Api::Error.new(404, "No tengo stats para #{kind}", validos: kinds) unless kinds.include?(kind)
+      raise Error.new(404, "No tengo stats para #{kind}", validos: kinds) unless kinds.include?(kind)
 
       limit = params[:limit] || 10
       limit = [100, limit.to_i].min
@@ -135,7 +135,7 @@ class API < Sinatra::Base
       @since ||= 1.week.ago.beginning_of_day unless @until
       @until ||= @since+1.week if @since
 
-      raise Api::Error.new(400, 'Fechas inválidas') if @since && @until && @since > @until
+      raise Error.new(400, 'Fechas inválidas') if @since && @until && @since > @until
 
       count_query = @query || {}
 

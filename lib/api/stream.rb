@@ -1,4 +1,4 @@
-module Api
+module API
   class Stream
 
     @@_url = nil
@@ -13,6 +13,7 @@ module Api
 
       def publish channel, event, data
         base = "#{@@_url}/#{channel}/#{event}"
+        puts @@_url
         headers = {'Content-type' => 'application/json'}
         headers['Host'] = @@_host if @@_host
 

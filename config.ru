@@ -9,7 +9,7 @@ I18n.available_locales= [:es, :en]
 
 require './app.rb'
 
-run API
+run API::V1
 
 # require 'sinatra'
 # require 'time'

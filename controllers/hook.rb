@@ -1,9 +1,9 @@
-class API < Sinatra::Base
+class API::V1 < Sinatra::Base
   register Sinatra::Namespace
   namespace '/hook' do
 
     get '/listen' do
-      token = Api::Config.facebook[:verify]
+      token = Config.facebook[:verify]
       puts 'verificando suscripción'
       if Koala::Facebook::RealtimeUpdates.meet_challenge(params, token)
         puts 'validated'
@@ -21,8 +21,9 @@ class API < Sinatra::Base
       # si tan solo `since` jalara en este endpoint...
 
       puts "ping /listens"
+      puts "body:\n#{body}"
 
-      playlist = SimpleSpotify.default_client.playlist(Api::Config.spotify_user, Api::Config.spotify_playlist) rescue nil
+      playlist = SimpleSpotify.default_client.playlist(Config.spotify_user, Config.spotify_playlist) rescue nil
       puts playlist.nil?
 
       Event::Facebook.process(body, query) do |event, time|
@@ -49,7 +50,7 @@ class API < Sinatra::Base
         Event::Listen.create(evt)
 
         if playlist
-          max = Api::Config.spotify_max_tracks.to_i
+          max = Config.spotify_max_tracks.to_i
           begin
             if playlist.tracks.total >= max
               extra = (playlist.tracks.total - max)
@@ -61,7 +62,7 @@ class API < Sinatra::Base
           end
         end
 
-        Api::Stream.publish(:listens, :track, track.as_json)
+        Stream.publish(:listens, :track, track.as_json)
       end
 
       puts "DONE /listens"
@@ -74,11 +75,11 @@ class API < Sinatra::Base
     # Logins
     #--------------
     get '/fb-login/:secret' do |secret|
-      if Api::Config.facebook[:verify] != secret
+      if Config.facebook[:verify] != secret
         halt(403)
       end
-      id = Api::Config.facebook[:id]
-      secret = Api::Config.facebook[:secret]
+      id = Config.facebook[:id]
+      secret = Config.facebook[:secret]
       redirect = request.url
       oauth = Koala::Facebook::OAuth.new(id, secret, redirect)
 
@@ -89,16 +90,16 @@ class API < Sinatra::Base
         redirect to oauth.url_for_oauth_code(opts)
       else
         access_token = oauth.get_access_token(params[:code])
-        Api::Config.facebook[:access_token] = access_token
-        Api::Config.save
-        # Api::Config.facebook[:access_token]
+        Config.facebook[:access_token] = access_token
+        Config.save
+        # Config.facebook[:access_token]
         'yay!'
       end
     end
 
 
     get '/spotify-login/?:callback?' do |callback|
-      if Api::Config.spotify_token != 'nil'
+      if Config.spotify_token != 'nil'
         halt(403)
       end
 
@@ -108,9 +109,9 @@ class API < Sinatra::Base
         code = params[:code]
         begin
           auth = SimpleSpotify::Authorization.from_code code, client: SimpleSpotify.default_client, redirect: redirect
-          Api::Config.spotify_token = auth.access_token
-          Api::Config.spotify_refresh = auth.refresh_token
-          Api::Config.save
+          Config.spotify_token = auth.access_token
+          Config.spotify_refresh = auth.refresh_token
+          Config.save
         rescue Exception => e
           json({cagation: e.message})
         else

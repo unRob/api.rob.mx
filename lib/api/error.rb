@@ -1,4 +1,4 @@
-module Api
+module API
   class Error < StandardError
     @@codes = {
       400 => 'Bad request',

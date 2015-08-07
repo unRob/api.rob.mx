@@ -6,7 +6,7 @@ Encoding.default_external = 'utf-8'
 $config_root = File.dirname(__FILE__)
 ENV['app_root'] = File.dirname($config_root)
 
-module Api
+module API
   class Config
 
     @@data = {}
@@ -96,7 +96,7 @@ module Api
   end
 end
 
-if File.exists? Api::Config.path
+if File.exists? API::Config.path
   puts "Loading env"
-  Api::Config.setup
+  API::Config.setup
 end
