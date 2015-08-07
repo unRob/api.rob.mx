@@ -42,12 +42,20 @@ class Tweet
     text
   end
 
+  def self.by_twitter_id id
+    self.where({twitter_id: id})
+  end
+
   def self.retweet! id
-    self.where(twitter_id: id).inc(retweets: 1)
+    self.by_twitter_id(id).inc(retweets: 1)
   end
 
   def self.fav! id
-    self.where(twitter_id: id).inc(favs: 1)
+    self.by_twitter_id(id).inc(favs: 1)
+  end
+
+  def self.unfav! id
+    self.by_twitter_id(id).inc(favs: -1)
   end
 
 
@@ -58,7 +66,7 @@ class Tweet
 
   def self.from_archive t
     mentions = t[:entities][:user_mentions]
-        .reject { |u| u[:id] == Api::Config.twitter[:user] }
+        .reject { |u| u[:id] == API::Config.twitter[:user] }
         .map { |u|
           TwitterUser.foc({
             twitter_id: u[:id],

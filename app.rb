@@ -35,11 +35,37 @@ module API
         client: client)
       set :spotify_client, client
 
+      twitter = Twitter::REST::Client.new do |config|
+          config.consumer_key        = Config.twitter[:key]
+          config.consumer_secret     = Config.twitter[:secret]
+          config.access_token        = Config.twitter[:token]
+          config.access_token_secret = Config.twitter[:access_token]
+      end
+      set :twitter, twitter
+
+      contacts = {
+        api: {
+          email: API::Config.api[:email],
+          name: API::Config.api[:name],
+          default_sender: true,
+        },
+        me: {
+          email: API::Config.me[:email],
+          name: API::Config.me[:name],
+          default_recipient: true,
+        }
+      }
+      Mail.configure(Mandrill::API.new(Config.mandrill), contacts)
 
 
       client.session.on_refresh do |sess|
         Config.spotify[:token] = sess.access_token
         Config.save
+      end
+
+      Pushover.configure do |config|
+        config.user  = Config.pushover[:user]
+        config.token = Config.pushover[:token]
       end
 
       Mongoid.raise_not_found_error = false
