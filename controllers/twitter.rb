@@ -1,4 +1,4 @@
-class API < Sinatra::Base
+class API::V1 < Sinatra::Base
   register Sinatra::Namespace
   namespace '/twitter' do
 

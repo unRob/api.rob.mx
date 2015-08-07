@@ -1,29 +1,109 @@
-require 'pp'
-class YAYSON
-  require 'json'
-
-  @base = nil
-
-  attr_reader :base
-
-  def initialize base
-    @base = File.expand_path base
-  end
-
-  def parse file
-    str = File.read(full_path file)
-    json = str.split(/\s*=\s*/, 2).last
-    JSON.parse(json, symbolize_names: true)
-  end
-
-  private
-  def full_path file
-    "#{@base}/#{file}"
-  end
-
-end
-
 namespace :twitter do
+
+  desc "Corre el poller"
+  task :realtime => :bootstrap do |task, args|
+    client = Twitter::Streaming::Client.new do |config|
+      config.consumer_key        = Api::Config.twitter[:key]
+      config.consumer_secret     = Api::Config.twitter[:secret]
+      config.access_token        = Api::Config.twitter[:token]
+      config.access_token_secret = Api::Config.twitter[:access_token]
+    end
+
+    opts = {
+      with: 'user'
+    }
+
+    publish_opts = {only: [:html_text, :text, :time, :twitter_id]}
+
+    puts "Polling..."
+    client.user(opts) do |object|
+      puts object.class
+      case object
+        when Twitter::Tweet
+
+          if object.retweeted_status
+            puts 'retweet'
+            Tweet.retweet! object.retweeted_status.id
+          else
+            next unless object.user.id == Api::Config::twitter[:user]
+            puts 'original'
+            pp object.to_h
+            t = Tweet.from_archive(object.to_h)
+            t.source = 'stream'
+            t.save
+            Api::Stream.publish(:twitter, :tweet, ct.as_json(publish_opts))
+          end
+
+
+        when Twitter::Streaming::Event
+          # no me importan los eventos de los demás
+          next if object.source.id == Api::Config.twitter[:user]
+          puts object.name
+          case object.name
+            when :favorite then Tweet.fav! object.target_object.id
+            when :unfavorite then Tweet.unfav! object.target_object.id
+            when :follow then TwitterUser.follows_me object.source
+            else puts "? #{object.name}"
+          end
+        when Twitter::Streaming::DeletedTweet
+          Tweet.where({twitter_id: object.id}).delete
+          Api::Stream.publish(:twitter, :tweet, Tweet.last_public.as_json(publish_opts))
+      end
+    end
+  end
+
+
+  desc "Revisa followers"
+  task :followers => :bootstrap do |task,args|
+
+    known = TwitterUser.following_me.sort(twitter_id: 1).map {|u|
+      [u.twitter_id, u]
+    }.to_h
+    puts "existentes: #{known.count}"
+
+    current = []
+    nuevos = []
+
+    begin
+      API::V1.twitter.followers(API::Config.twitter[:user], {
+        skip_status: true,
+        include_user_entities: false,
+        count: 200,
+      }).each do |u|
+        # puts u.screen_name, u.created_at
+        tid = u.id
+        current << tid
+        next if known.has_key? tid
+        nuevos << TwitterUser.follow_me!(u)
+      end
+    rescue Twitter::Error::TooManyRequests => err
+      puts "refresh en #{err.rate_limit.reset_in}"
+      sleep err.rate_limit.reset_in
+      retry
+    else
+      uf_ids = []
+      fueron = (known.keys - current).map {|id|
+        u = known[id]
+        uf_ids << u.id
+        "* [@#{u.handle}](https://twitter.com/intent/user?user_id=#{u.id}&screen_name=#{u.handle}) - #{u.name}"
+      }
+
+
+      if fueron.count > 0
+        TwitterUser.unfollow_me! uf_ids
+
+        text = <<MARKDOWN
+# Habemus unfollowers
+
+#{fueron.join("\n")}
+MARKDOWN
+
+        API::Mail.new("Unfollowers", text, :markdown).send_async
+      end
+
+    end
+  end
+
 
   desc "Parse del archivo de twitter"
   task :ingesta, [:dir] => :bootstrap do |task, args|
@@ -44,6 +124,7 @@ namespace :twitter do
   end
 
 
+  desc "Descarga los tuits hasta ahora"
   task :poll, [:since] => :bootstrap do |task, args|
 
     $van = 0
@@ -93,6 +174,31 @@ namespace :twitter do
 
     request
 
+  end
+
+end
+
+require 'pp'
+class YAYSON
+  require 'json'
+
+  @base = nil
+
+  attr_reader :base
+
+  def initialize base
+    @base = File.expand_path base
+  end
+
+  def parse file
+    str = File.read(full_path file)
+    json = str.split(/\s*=\s*/, 2).last
+    JSON.parse(json, symbolize_names: true)
+  end
+
+  private
+  def full_path file
+    "#{@base}/#{file}"
   end
 
 end

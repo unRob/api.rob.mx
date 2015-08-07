@@ -11,6 +11,9 @@ group :script, :http do
   gem 'wolfram'
   gem 'activesupport', require: %w{active_support/core_ext}
   gem 'twitter'
+  gem 'pushover'
+  gem 'mandrill-api', require: 'mandrill'
+  gem 'maruku'
 end
 
 group :script do

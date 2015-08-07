@@ -14,7 +14,7 @@ end
 
 task :bootstrap => :env do
   require "#{$dir}/app.rb"
-  API.bootstrap
+  API::V1.bootstrap
 end
 
 Dir["#{$dir}/tasks/**.rb"].each do |f|
