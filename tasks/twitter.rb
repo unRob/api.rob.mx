@@ -3,10 +3,10 @@ namespace :twitter do
   desc "Corre el poller"
   task :realtime => :bootstrap do |task, args|
     client = Twitter::Streaming::Client.new do |config|
-      config.consumer_key        = Api::Config.twitter[:key]
-      config.consumer_secret     = Api::Config.twitter[:secret]
-      config.access_token        = Api::Config.twitter[:token]
-      config.access_token_secret = Api::Config.twitter[:access_token]
+      config.consumer_key        = API::Config.twitter[:key]
+      config.consumer_secret     = API::Config.twitter[:secret]
+      config.access_token        = API::Config.twitter[:token]
+      config.access_token_secret = API::Config.twitter[:access_token]
     end
 
     opts = {
@@ -23,21 +23,22 @@ namespace :twitter do
 
           if object.retweeted_status
             puts 'retweet'
+            pp object.to_h
             Tweet.retweet! object.retweeted_status.id
           else
-            next unless object.user.id == Api::Config::twitter[:user]
+            next unless object.user.id == API::Config::twitter[:user]
             puts 'original'
             pp object.to_h
             t = Tweet.from_archive(object.to_h)
             t.source = 'stream'
             t.save
-            Api::Stream.publish(:twitter, :tweet, ct.as_json(publish_opts))
+            API::Stream.publish(:twitter, :tweet, ct.as_json(publish_opts))
           end
 
 
         when Twitter::Streaming::Event
           # no me importan los eventos de los demás
-          next if object.source.id == Api::Config.twitter[:user]
+          next if object.source.id == API::Config.twitter[:user]
           puts object.name
           case object.name
             when :favorite then Tweet.fav! object.target_object.id
@@ -47,7 +48,7 @@ namespace :twitter do
           end
         when Twitter::Streaming::DeletedTweet
           Tweet.where({twitter_id: object.id}).delete
-          Api::Stream.publish(:twitter, :tweet, Tweet.last_public.as_json(publish_opts))
+          API::Stream.publish(:twitter, :tweet, Tweet.last_public.as_json(publish_opts))
       end
     end
   end
