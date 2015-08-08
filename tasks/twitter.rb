@@ -146,7 +146,7 @@ MARKDOWN
       }
       opts[:max_id] = max unless max.nil?
       begin
-        tuits = API.twitter.user_timeline('unrob', opts)
+        tuits = API::V1.twitter.user_timeline('unrob', opts)
         if tuits.empty?
           puts 'done!'
           exit
