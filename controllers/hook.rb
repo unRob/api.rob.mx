@@ -62,7 +62,7 @@ class API::V1 < Sinatra::Base
           end
         end
 
-        Stream.publish(:listens, :track, track.as_json)
+        API::Stream.publish(:listens, :track, track.as_json)
       end
 
       puts "DONE /listens"
