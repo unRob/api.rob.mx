@@ -43,6 +43,11 @@ module API
       end
       set :twitter, twitter
 
+      Instagram.configure do |config|
+        config.client_id = Config.instagram[:id]
+        config.client_secret = Config.instagram[:secret]
+      end
+
       contacts = {
         api: {
           email: API::Config.api[:email],

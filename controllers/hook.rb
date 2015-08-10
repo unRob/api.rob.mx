@@ -3,7 +3,7 @@ class API::V1 < Sinatra::Base
   namespace '/hook' do
 
     get '/listen' do
-      token = Config.facebook[:verify]
+      token = API::Config.facebook[:verify]
       puts 'verificando suscripción'
       if Koala::Facebook::RealtimeUpdates.meet_challenge(params, token)
         puts 'validated'
@@ -23,7 +23,7 @@ class API::V1 < Sinatra::Base
       puts "ping /listens"
       puts "body:\n#{body}"
 
-      playlist = SimpleSpotify.default_client.playlist(Config.spotify_user, Config.spotify_playlist) rescue nil
+      playlist = SimpleSpotify.default_client.playlist(API::Config.spotify_user, API::Config.spotify_playlist) rescue nil
       puts playlist.nil?
 
       Event::Facebook.process(body, query) do |event, time|
@@ -50,7 +50,7 @@ class API::V1 < Sinatra::Base
         Event::Listen.create(evt)
 
         if playlist
-          max = Config.spotify_max_tracks.to_i
+          max = API::Config.spotify_max_tracks.to_i
           begin
             if playlist.tracks.total >= max
               extra = (playlist.tracks.total - max)
@@ -71,59 +71,20 @@ class API::V1 < Sinatra::Base
     end #POST /music
 
 
-    #--------------
-    # Logins
-    #--------------
-    get '/fb-login/:secret' do |secret|
-      if Config.facebook[:verify] != secret
-        halt(403)
-      end
-      id = Config.facebook[:id]
-      secret = Config.facebook[:secret]
-      redirect = request.url
-      oauth = Koala::Facebook::OAuth.new(id, secret, redirect)
-
-      if params[:code].nil?
-        opts = {
-          permissions: %w{user_actions.music read_stream}.join(',')
-        }
-        redirect to oauth.url_for_oauth_code(opts)
-      else
-        access_token = oauth.get_access_token(params[:code])
-        Config.facebook[:access_token] = access_token
-        Config.save
-        # Config.facebook[:access_token]
-        'yay!'
-      end
+    get '/instagram' do
+      Instagram.meet_challenge(params)
     end
 
+    post '/instagram' do
+      body = request.body.read
+      halt(401) unless Instagram.validate_update(body, headers)
 
-    get '/spotify-login/?:callback?' do |callback|
-      if Config.spotify_token != 'nil'
-        halt(403)
+      client = Instagram.client(access_token: API::Config.instagram[:token])
+      Instagram.process_subscription(body) do |handler|
+        handler.on_user_changed {
+          # client.user_recent_media.each do ||
+        }
       end
-
-      redirect = request.url.gsub(/\?.+/, '')
-
-      if callback == 'done'
-        code = params[:code]
-        begin
-          auth = SimpleSpotify::Authorization.from_code code, client: SimpleSpotify.default_client, redirect: redirect
-          Config.spotify_token = auth.access_token
-          Config.spotify_refresh = auth.refresh_token
-          Config.save
-        rescue Exception => e
-          json({cagation: e.message})
-        else
-          'yay!'
-        end
-      else
-        login_url = SimpleSpotify::Authorization.login_uri redirect+'/done', SimpleSpotify.default_client, scope: 'playlist-modify-public user-read-private'
-
-        redirect to(login_url)
-      end
-
-
     end
 
   end

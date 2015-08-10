@@ -14,6 +14,7 @@ group :script, :http do
   gem 'pushover', '~> 1.0.4'
   gem 'mandrill-api', require: 'mandrill'
   gem 'maruku'
+  gem 'instagram'
 end
 
 group :script do
