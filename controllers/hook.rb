@@ -72,7 +72,7 @@ class API::V1 < Sinatra::Base
 
 
     get '/instagram' do
-      Instagram.meet_challenge(params)
+      params['hub.challenge']
     end
 
     post '/instagram' do

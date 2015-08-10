@@ -57,8 +57,7 @@ class API::V1 < Sinatra::Base
 
         API::Config.instagram[:token] = response.access_token
         API::Config.save
-        ep = request.scheme+'://'+ENV['SERVER_NAME']+'/hook/instagram'
-        Instagram.create_subscription 'user', ep, 'media'
+        'yay!'
       else
         redirect Instagram.authorize_url(redirect_uri: callback)
       end
