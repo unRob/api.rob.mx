@@ -23,7 +23,10 @@ class API::V1 < Sinatra::Base
       puts "ping /listens"
       puts "body:\n#{body}"
 
-      playlist = SimpleSpotify.default_client.playlist(API::Config.spotify_user, API::Config.spotify_playlist) rescue nil
+      playlist = SimpleSpotify.default_client.playlist(
+        API::Config.spotify[:user],
+        API::Config.spotify[:playlist]
+      ) rescue nil
       puts playlist.nil?
 
       Event::Facebook.process(body, query) do |event, time|
