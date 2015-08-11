@@ -20,19 +20,17 @@ namespace :twitter do
       puts object.class
       case object
         when Twitter::Tweet
-
-          if object.retweeted_status
-            puts 'retweet'
-            pp object.to_h
+          if !object.retweeted_status.nil?
+            puts "retweet #{object.retweeted_status.id}"
             Tweet.retweet! object.retweeted_status.id
           else
+            puts "tuit #{object.id}"
             next unless object.user.id == API::Config::twitter[:user]
-            puts 'original'
-            pp object.to_h
+            puts "original"
             t = Tweet.from_archive(object.to_h)
             t.source = 'stream'
             t.save
-            API::Stream.publish(:twitter, :tweet, ct.as_json(publish_opts))
+            API::Stream.publish(:twitter, :tweet, t.as_json(publish_opts))
           end
 
 
