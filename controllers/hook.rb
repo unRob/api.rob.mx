@@ -53,7 +53,7 @@ class API::V1 < Sinatra::Base
         Event::Listen.create(evt)
 
         if playlist
-          max = API::Config.spotify_max_tracks.to_i
+          max = API::Config.spotify[:max_tracks].to_i
           begin
             if playlist.tracks.total >= max
               extra = (playlist.tracks.total - max)
