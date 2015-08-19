@@ -18,6 +18,11 @@ class Tweet
     str.gsub("\n", '<br />');
   }
 
+  field :original, default: -> {
+    # typecasting de [nil|String] a bool
+    !(/^@/.match text)
+  }
+
   field :time, type: DateTime
 
   field :in_reply_to, type: Integer
@@ -31,7 +36,7 @@ class Tweet
   embeds_many :urls, class_name: 'TwitterURL', as: :twitter_url
 
   scope :original, -> do
-    where(mention_ids: [])
+    where(original: true)
   end
 
   def coordinates
