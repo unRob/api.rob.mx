@@ -89,6 +89,8 @@ namespace :twitter do
 
       if fueron.count > 0
         TwitterUser.unfollow_me! uf_ids
+        puts "Unfollowers: #{fueron.count}"
+        puts uf_ids
 
         text = <<MARKDOWN
 # Habemus unfollowers

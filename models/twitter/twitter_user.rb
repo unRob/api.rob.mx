@@ -26,7 +26,7 @@ class TwitterUser
 
 
   def self.unfollow_me! users
-    where(:twitter_id.in => users).update_all({
+    where(:_id.in => users).update_all({
       follows_me: false,
       unfollowed_me: Time.now
     })
@@ -41,12 +41,14 @@ class TwitterUser
   def self.foc data
     existing = self.where({twitter_id: data[:twitter_id]}).first
     if existing
-      if existing.handle != data[:name]
+      if existing.handle != data[:handle]
         old_handle = existing.handle.dup
         existing.handle = data[:handle]
         existing.aka << old_handle
       end
+
       existing.name = data[:name] unless existing.name == data[:name]
+
       if data[:follows_me] == true
         existing.followed_me = data[:followed_me]
         existing.follows_me = true
