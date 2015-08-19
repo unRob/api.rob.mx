@@ -26,11 +26,10 @@ namespace :twitter do
           else
             puts "tuit #{object.id}"
             next unless object.user.id == API::Config::twitter[:user]
-            puts "original"
             t = Tweet.from_archive(object.to_h)
             t.source = 'stream'
             t.save
-            API::Stream.publish(:twitter, :tweet, t.as_json(publish_opts))
+            API::Stream.publish(:twitter, :tweet, t.as_json(publish_opts)) if t.original
           end
 
 
