@@ -1,0 +1,8 @@
+#!/usr/bin/zsh
+
+export RACK_ENV=production
+export SERVER_NAME=api.rob.mx
+RAKEFILE=/domains/rob.mx/Rakefile
+LOGFILE=/domains/rob.mx/logs/twitter.log
+
+rake --rakefile $RAKEFILE twitter:followers 2>&1 >> $LOGFILE
