@@ -88,7 +88,11 @@ class API::V1 < Sinatra::Base
       client = Instagram.client(access_token: API::Config.instagram[:token])
       Instagram.process_subscription(body) do |handler|
         handler.on_user_changed {
-          # client.user_recent_media.each do ||
+          last = Media.from_service(:instagram).sort({time: 1}).first.meta[:id]
+          opts = {max_id: last}
+          client.user_recent_media(opts).each do |media|
+            Media.from_instagram(media)
+          end
         }
       end
     end
