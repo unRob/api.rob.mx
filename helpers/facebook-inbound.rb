@@ -3,14 +3,17 @@ module Event
 
     def self.refresh_token
       auth = Koala::Facebook::OAuth.new API::Config.facebook[:id], API::Config.facebook[:secret]
+      puts API::Config.facebook
       begin
         nuevo = auth.exchange_access_token(API::Config.facebook[:access_token])
       rescue Exception => e
         puts e.message
+        raise "Could not refresh facebook token"
+      else
+        API::V1.set :facebook,  Koala::Facebook::API.new(nuevo)
+        API::Config.facebook[:access_token] = nuevo
+        API::Config.save
       end
-      API::V1.set :facebook,  Koala::Facebook::API.new(nuevo)
-      API::Config.facebook[:access_token] = nuevo
-      API::Config.save
     end
 
     def self.process json, args
@@ -19,7 +22,8 @@ module Event
       data[:entry].each do |entry|
         begin
           result = API::V1.facebook.get_object(*args)
-        rescue Exception
+        rescue Exception => e
+          $stderr.puts e
           self.refresh_token
           result = API::V1.facebook.get_object(*args)
         end

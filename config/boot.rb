@@ -4,7 +4,7 @@ require 'pp'
 Encoding.default_external = 'utf-8'
 
 $config_root = File.dirname(__FILE__)
-ENV['app_root'] = File.dirname($config_root)
+ENV['app_root'] = File.dirname(File.dirname(__FILE__))
 
 module API
   class Config
