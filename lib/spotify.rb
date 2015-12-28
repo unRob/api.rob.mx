@@ -21,7 +21,7 @@ class Spotify
     query = {stub: name.stub}
     genre = Genre.where(query).first
     if genre.nil?
-      genre = Genre.create({name: name}.merge(stub))
+      genre = Genre.create({name: name}.merge(query))
     end
     genre
   end

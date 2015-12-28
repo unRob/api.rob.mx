@@ -15,6 +15,9 @@ group :script, :http do
   gem 'mandrill-api', require: 'mandrill'
   gem 'maruku'
   gem 'instagram'
+  gem 'dropbox-sdk', require: 'dropbox_sdk'
+  gem 'exifr'
+  gem 'mini_magick'
 end
 
 group :script do

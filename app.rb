@@ -15,6 +15,8 @@ module API
       end
     end
 
+    register Auth
+
     register Sinatra::ConfigFile
     register Sinatra::JSON
     register Sinatra::Namespace
@@ -42,6 +44,8 @@ module API
           config.access_token_secret = Config.twitter[:access_token]
       end
       set :twitter, twitter
+
+      set :dropbox, DropboxClient.new(Config.dropbox[:token])
 
       Instagram.configure do |config|
         config.client_id = Config.instagram[:id]
