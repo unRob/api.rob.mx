@@ -18,7 +18,7 @@ class API::V1 < Sinatra::Base
       last = Event::Listen.last_event_time
       puts last
       body = request.body.read
-      query = ['/me/music.listens', since: last.to_i]
+      query = ['/me/music.listens']#, since: last.to_i]
       # si tan solo `since` jalara en este endpoint...
 
       puts "ping /listens"
@@ -30,6 +30,7 @@ class API::V1 < Sinatra::Base
       ) rescue nil
       puts playlist.nil?
 
+      last_track = nil
       Event::Facebook.process(body, query) do |event, time|
         unless time > last
           begin
@@ -41,6 +42,7 @@ class API::V1 < Sinatra::Base
         end
         puts "PROCESSING #{event['song']['url']}"
         track = Spotify.track_for(event['song']['url'])
+        last_track = track
         attrs = track.attributes
 
         evt = {
@@ -71,7 +73,7 @@ class API::V1 < Sinatra::Base
 
       puts "DONE /listens"
 
-      'ok'
+      json last_track.as_json
     end #POST /music
 
 
