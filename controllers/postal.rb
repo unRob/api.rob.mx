@@ -68,8 +68,9 @@ class API::V1 < Sinatra::Base
 
       url_base = [API::Config.dropbox[:base], *comps].join('/')
 
-      postal.photo = Photo.create({
+      postal.photo = Media.create({
         url: "/postal/#{postal.id}",
+        type: "image",
         sizes: {
           square: "#{url_base}/#{postal.id}-500.jpg",
           original: "#{url_base}/#{postal.id}.jpg",

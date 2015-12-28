@@ -10,7 +10,7 @@ class Postcard
 
   field :location
   embeds_one :meta, as: :metadatateable
-  has_one :photo
+  has_one :media
 
   index location: '2d'
 end
