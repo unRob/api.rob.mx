@@ -2,7 +2,9 @@
 
 export RACK_ENV=production
 export SERVER_NAME=api.rob.mx
-RAKEFILE=/domains/rob.mx/Rakefile
+export BUNDLE_GEMFILE=/domains/rob.mx/api/Gemfile
+RAKEFILE=/domains/rob.mx/api/Rakefile
 LOGFILE=/domains/rob.mx/logs/twitter.log
+
 
 rake --rakefile $RAKEFILE twitter:followers 2>&1 >> $LOGFILE

@@ -1,5 +1,5 @@
 var API = {};
-API.host = 'http://api.'+window.location.host;
+API.host = 'https://api.'+window.location.host;
 API.stream_host = API.host + '/stream';
 API.resolve_url = function(ep) {
 	return API.host+'/'+ep.replace(/^\//, '');
