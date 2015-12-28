@@ -10,19 +10,7 @@ class Postcard
 
   field :location
   embeds_one :meta, as: :metadatateable
-  has_one :photo
+  has_one :media
 
   index location: '2d'
-end
-
-class Meta
-  include Mongoid::Document
-  include Mongoid::Attributes::Dynamic
-
-  embedded_in :metadatateable, polymorphic: true
-end
-
-ActiveSupport::Inflector.inflections do |inflect|
-  inflect.plural(/^(meta)$/i, 'meta')
-  inflect.singular(/^(meta)$/i, 'meta')
 end
