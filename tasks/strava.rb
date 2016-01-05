@@ -18,8 +18,6 @@ namespace :strava do
       distance = activity['distance']
       mt = activity['moving_time']
       eg = activity['total_elevation_gain']
-      puts eg
-      exit
 
       details = @client.retrieve_an_activity(activity['id'])
 
