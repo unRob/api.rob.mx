@@ -4,10 +4,15 @@ Un API para registrar muchas de las pendejadas que hago.
 
 ## Apps
 
-- [Rob escucha](http://rob.mx/escucha) música y aquí lo documento
+- [rob.mx](https://rob.mx) mi página personal
+- [Rob escucha](https://rob.mx/escucha) música y aquí lo documento
+- [Postales](http://postales.rob.mx) Envío de postales por los internets
 
-## Planes
+## Servicios integrados
 
-- Stats de bici
-- Stats de código
-- Stats de tuiter
+- Dropbox
+- Facebook
+- Instagram
+- Spotify
+- Strava
+- Twitter

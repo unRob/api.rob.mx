@@ -15,8 +15,6 @@ class Ride
   field :max_speed, type: Float
   field :avg_speed, type: Float
 
-  field :reason, type: String
-  field :places, type: Array
-  has_many :riders, as: :humanizable
+  field :commute, type: Boolean
 
 end
