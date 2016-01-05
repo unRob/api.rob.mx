@@ -2,40 +2,47 @@ namespace :strava do
 
   desc "Descarga actividades nuevas de Strava"
   task :poll => :bootstrap do |task, args|
-    @client = Strava::Api::V3::Client.new(access_token: Api::Config.strava[:token])
-    last_ride = Event::Ride.last_event_time
-    activities = @client.list_athlete_activities after: last_ride
+    @client = Strava::Api::V3::Client.new(access_token: API::Config.strava[:token])
+    last_ride = Ride.all.sort(started: 1).first
+    opts = {per_page: 100}
+    opts[:before] = last_ride.started.to_i if last_ride
+    activities = @client.list_athlete_activities opts
+
+    puts activities.count
 
     activities.each do |activity|
+      next unless Ride.where(strava_id: activity['id']).first.nil?
       started  = Time.parse(activity['start_date'])
       ended = started+activity['elapsed_time']
 
       distance = activity['distance']
       mt = activity['moving_time']
       eg = activity['total_elevation_gain']
+      puts eg
+      exit
 
       details = @client.retrieve_an_activity(activity['id'])
 
       # puts JSON.pretty_generate activity
       # puts JSON.pretty_generate details
+      # exit
 
       coords = Polylines::Decoder.decode_polyline(details['map']['polyline'])
       coords.map {|latlng| latlng.reverse }
+      # puts JSON.pretty_generate coords
+      # exit
 
-      description = details['description'].squish.split ' '
-      description = description.map {|pz|
-        k,v = pz.split(':')
-        [k.to_sym, v]
-      }.to_h
+      commute = details['commute']
 
-      riders = nil
-      places = nil
-      razon = 'nomás'
+      if details['description']
+        description = details['description'].squish.split ' '
+        description = description.map {|pz|
+          k,v = pz.split(':')
+          [k.to_sym, v]
+        }.to_h
 
-      riders = description[:con].split(',') if description[:con]
-      razon = description[:por] if description[:por]
-      places = description[:en].split(',') if description[:en]
-
+        commute = true if description[:por] == 'commute'
+      end
 
       ride = {
         strava_id: activity['id'],
@@ -47,21 +54,20 @@ namespace :strava do
         distance: distance,
         max_speed: activity['max_speed']*3.6,
         avg_speed: activity['average_speed']*3.6,
-        reason: razon,
+        commute: commute,
         track: {
           type: "LineString",
           coordinates: coords
         }
       }
-      ride[:riders] = riders if riders
-      ride[:places] = places if places
 
-      final = ride.dup
-      final.delete(:track)
-      puts JSON.pretty_generate(final)
+      # final = ride.dup
+      # final.delete(:track)
+      # puts JSON.pretty_generate(final)
 
 
-      # Ride.create(ride)
+      r = Ride.create(ride)
+      puts r.name
     end
   end
 
