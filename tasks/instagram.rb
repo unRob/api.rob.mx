@@ -17,8 +17,9 @@ namespace :instagram do
 
     loop do
       opts = {}
-      opts[:max_id] = last if last
+      opts[:min_id] = last if last
       res = client.user_recent_media(opts)
+
       last = res.pagination.next_max_id
       res.each do |item|
         m = Media.from_instagram(item)
@@ -28,7 +29,5 @@ namespace :instagram do
       break if last.nil?
     end
   end
-
-
 
 end

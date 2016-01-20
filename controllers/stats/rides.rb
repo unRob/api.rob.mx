@@ -71,14 +71,21 @@ class API::V1 < Sinatra::Base
     get '/period' do
       result = {}
       count_query = {}
-      count_query[:time] = {'$gte' => @since, '$lte'=>@until}
+      count_query[:started] = {'$gte' => @since, '$lte'=>@until}
 
-      result[:count] = Event::Listen.where(@query.merge count_query).count
+      result[:count] = Ride.where(count_query).count
       result[:since] = @since if @since
       result[:until] = @until if @until
 
       if @step
-        items = Event::Listen.period(@since, @until, q: @query, step: @step)
+        group = {
+          count: {'$sum' => 1},
+          distance: {'$sum' => '$distance'},
+          moved_for: {'$sum' => '$moved_for'},
+          elevation: {'$sum' => '$elevation'},
+          avg_speed: {'$avg' => '$avg_speed'}
+        }
+        items = Ride.period(@since, @until, group,q: @query, step: @step, props: [:started, :ended])
 
         curr = @since
         curr = items.first['_id'].to_date if !items.empty? && @step == :week
@@ -88,21 +95,30 @@ class API::V1 < Sinatra::Base
           date = curr.to_date
           date = Date.new(date.year, date.month) if @step == :month
           date = Date.new(date.year) if @step == :year
-          range[date] = 0
+          range[date] = {rides: 0, time: 0, speed: 0, distance: 0, elevation: 0}
           curr += 1.send(@step)
         end
 
-        items = items.map {|i| [i['_id'], i['count']]}.to_h
+        items = items.map {|i|
+          id = i['_id']
+          i.delete('_id')
+          val = i
+          val[:time] = val['moved_for']
+          val[:speed] = val['avg_speed']
+          val.delete 'moved_for'
+          val.delete 'avg_speed'
+          [id, val]
+        }.to_h
 
         result[:items] = range.map {|k, v|
           v = items[k] || v
           k = case @step
-            when :week then "#{k.year}-S#{k.cweek}"
-            when :month then "#{k.year}-#{k.month}"
+            when :week then "#{k.year}-S#{k.cweek.to_s.rjust(2, '0')}"
+            when :month then "#{k.year}-#{k.month.to_s.rjust(2, '0')}"
             when :year then k.year
             else k
           end
-          {_id: k.to_s, count: v}
+          {_id: k.to_s, stats: v}
         }
 
       end

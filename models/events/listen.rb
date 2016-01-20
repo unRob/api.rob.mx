@@ -3,6 +3,7 @@ module Event
     include Mongoid::Document
     include Mongoid::Attributes::Dynamic
     extend EventCollection::Top
+    extend EventCollection::Periodical
     store_in collection: 'listens'
 
     field :ingester, type: String, default: 'api'

@@ -32,7 +32,7 @@ class Media
   class << self
 
     def from_instagram item
-      exists = where("meta.id" => item.id)
+      exists = where("meta._id" => item.id)
       if exists.count > 0
         m = exists.first
         m.meta.likes = item.likes.count
