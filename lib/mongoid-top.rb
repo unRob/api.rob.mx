@@ -49,7 +49,11 @@ module EventCollection
       props ||= [:time, :time]
       match = q || {}
       match[props.first] = {'$gte' => from}
-      match[props.last]  = {'$lte' => to}
+      if props.first == props.last
+        match[props.first]['$lte'] = to
+      else
+        match[props.last] = {'$lte' => to}
+      end
 
       pipeline = []
 
@@ -67,7 +71,6 @@ module EventCollection
       pipeline << {'$project' => {_id: projection}.merge(extra)}
       pipeline << {'$group' => {_id: '$_id'}.merge(group)}
       pipeline << {'$sort' => sort}
-
 
       collection.aggregate(pipeline).map {|v|
         id = v['_id']

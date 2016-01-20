@@ -86,7 +86,7 @@ class API::V1 < Sinatra::Base
       count_query = {}
       count_query[:time] = {'$gte' => @since, '$lte'=>@until}
 
-      result[:count] = Event::Listen.where(@query.merge count_query).count
+      result[:count] = Event::Listen.where((@query || {}).merge count_query).count
       result[:since] = @since if @since
       result[:until] = @until if @until
 
