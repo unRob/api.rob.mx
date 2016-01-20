@@ -28,37 +28,48 @@ module EventCollection
 
       res
     end
+  end
 
 
-    def period from, to, q:{}, step: nil
-      query = []
-      match = q||{}
-      match[:time] = {}
-      match[:time]['$gte'] = from
-      match[:time]['$lte'] = to
+  module Periodical
 
-      projection = {year: {'$year' => '$time'}}
-      projection.merge!(case step
-        when :day then {month: {'$month' => '$time'}, day: {'$dayOfMonth' => '$time'}}
-        when :week then {week: {'$week'=> '$time'}}
-        when :month then {month: {'$month' => '$time'}}
+    def project step, prop='$time'
+      projection = {year: {'$year' => prop}}
+      projection.merge(case step
+        when :day then {month: {'$month' => prop}, day: {'$dayOfMonth' => prop}}
+        when :week then {week: {'$week'=> prop}}
+        when :month then {month: {'$month' => prop}}
         else {}
         end
       )
+    end
 
+    def period from, to, group=nil, q:{}, step: nil, props: nil
+      group ||= {count: {'$sum' => 1}}
+      props ||= [:time, :time]
+      match = q || {}
+      match[props.first] = {'$gte' => from}
+      match[props.last]  = {'$lte' => to}
+
+      pipeline = []
+
+      projection = self.project(step, "$#{props.first}")
       keys = projection.keys
-      id = keys.map {|k|
-        [k, {"$#{k}" => '$_id'}]
-      }.to_h
-
       sort = keys.map {|k| ["_id.#{k}", 1]}.to_h
 
-      query << {'$match' => match}
-      query << {'$project' => {_id: projection}}
-      query << {'$group' => {_id: '$_id', count: {'$sum' => 1}}}
-      query << {'$sort' => sort}
+      extra = {}
+      group.each do |k,v|
+        next if k == :count
+        extra[k] = v.values.first
+      end
 
-      res = collection.aggregate(query).map {|v|
+      pipeline << {'$match' => match}
+      pipeline << {'$project' => {_id: projection}.merge(extra)}
+      pipeline << {'$group' => {_id: '$_id'}.merge(group)}
+      pipeline << {'$sort' => sort}
+
+
+      collection.aggregate(pipeline).map {|v|
         id = v['_id']
         v['_id'] = case step
           when :day then Date.new(id['year'], id['month'], id['day'])
@@ -68,7 +79,6 @@ module EventCollection
         end
         v
       }
-      res
     end
 
   end

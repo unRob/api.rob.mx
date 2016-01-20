@@ -3,9 +3,9 @@ namespace :strava do
   desc "Descarga actividades nuevas de Strava"
   task :poll => :bootstrap do |task, args|
     @client = Strava::Api::V3::Client.new(access_token: API::Config.strava[:token])
-    last_ride = Ride.all.sort(started: 1).first
+    last_ride = Ride.all.sort(started: -1).first
     opts = {per_page: 100}
-    opts[:before] = last_ride.started.to_i if last_ride
+    opts[:after] = last_ride.started.to_i if last_ride
     activities = @client.list_athlete_activities opts
 
     puts activities.count

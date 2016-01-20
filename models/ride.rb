@@ -1,5 +1,6 @@
 class Ride
   include Mongoid::Document
+  extend EventCollection::Periodical
 
   field :strava_id, type: String
   field :name, type: String
