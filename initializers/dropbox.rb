@@ -1,0 +1,1 @@
+set :dropbox, DropboxClient.new(API::Config.dropbox[:token])

@@ -54,7 +54,7 @@ class API::V1 < Sinatra::Base
           time: time
         }
         Event::Listen.create(evt)
-
+        ENV['DEBUG'] = true
         if playlist
           max = API::Config.spotify[:max_tracks].to_i
           begin
@@ -65,6 +65,8 @@ class API::V1 < Sinatra::Base
             playlist.add_tracks(track.spotify_id)
           rescue Exception => e
             puts e
+            puts e.code
+            puts e.message
           end
         end
 
@@ -82,19 +84,22 @@ class API::V1 < Sinatra::Base
     end
 
     post '/instagram' do
-      body = request.body.read
-      halt(401) unless Instagram.validate_update(body, headers)
+      body = request.body
+      # halt(401) unless Instagram.validate_update(body, headers)
 
       client = Instagram.client(access_token: API::Config.instagram[:token])
       Instagram.process_subscription(body) do |handler|
+        $stderr.puts 'sub'
         handler.on_user_changed {
+          $stderr.puts 'uc'
           last = Media.from_service(:instagram).sort({time: 1}).first.meta[:id]
-          opts = {max_id: last}
+          opts = {min_id: last}
           client.user_recent_media(opts).each do |media|
             Media.from_instagram(media)
           end
         }
       end
+      "ok"
     end
 
   end
