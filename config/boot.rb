@@ -35,6 +35,10 @@ module API
       end
     end
 
+    def self.enabled? key
+      @@data.include? key.to_sym
+    end
+
     def self.method_missing meth, *args
       ms = meth.to_s
 

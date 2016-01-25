@@ -7,7 +7,6 @@ namespace :instagram do
     puts Instagram.create_subscription 'user', ep, 'media'
   end
 
-
   desc "Baja fotos hasta ahora"
   task :fetch => :bootstrap do
 

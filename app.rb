@@ -26,55 +26,10 @@ module API
     end
 
     def self.bootstrap
-      fbconf = Config.facebook
-      set :facebook, Koala::Facebook::API.new(fbconf[:access_token])
-      set :facebook_oauth, Koala::Facebook::OAuth.new(fbconf[:id], fbconf[:secret])
-
-      client = SimpleSpotify::Client.new Config.spotify[:key], Config.spotify[:secret]
-      client.session = SimpleSpotify::Authorization.new(
-        access_token: Config.spotify[:token],
-        refresh_token: Config.spotify[:refresh],
-        client: client)
-      set :spotify_client, client
-
-      twitter = Twitter::REST::Client.new do |config|
-          config.consumer_key        = Config.twitter[:key]
-          config.consumer_secret     = Config.twitter[:secret]
-          config.access_token        = Config.twitter[:token]
-          config.access_token_secret = Config.twitter[:access_token]
-      end
-      set :twitter, twitter
-
-      set :dropbox, DropboxClient.new(Config.dropbox[:token])
-
-      Instagram.configure do |config|
-        config.client_id = Config.instagram[:id]
-        config.client_secret = Config.instagram[:secret]
-      end
-
-      contacts = {
-        api: {
-          email: API::Config.api[:email],
-          name: API::Config.api[:name],
-          default_sender: true,
-        },
-        me: {
-          email: API::Config.me[:email],
-          name: API::Config.me[:name],
-          default_recipient: true,
-        }
-      }
-      Mail.configure(Mandrill::API.new(Config.mandrill), contacts)
-
-
-      client.session.on_refresh do |sess|
-        Config.spotify[:token] = sess.access_token
-        Config.save
-      end
-
-      Pushover.configure do |config|
-        config.user  = Config.pushover[:user]
-        config.token = Config.pushover[:token]
+      initializers = "#{ENV['app_root']}/initializers/*.rb"
+      Dir[initializers].each do |f|
+        service = f[/([\w]+).rb/, 1]
+        require "#{f}" if Config.enabled?(service)
       end
 
       Mongoid.raise_not_found_error = false
@@ -83,12 +38,10 @@ module API
       end
     end
 
-
     configure do
       self.bootstrap
       Stream.configure('http://127.0.0.1/stream/publish', ENV['SERVER_NAME']);
     end
-
 
     before do
       response.headers['Access-Control-Allow-Origin'] = '*'
@@ -156,15 +109,15 @@ module API
 
 
     get '/privacy' do
-      json({message: 'Rob no hará cosas malas con los datos de Rob, porqué es la misma persona'})
+      json({message: Config.messages[:privacy]})
     end
 
     get '/terms' do
-      json({message: 'Al usar este API aceptas que no va a funcionar si no quiero que funcione, y se provee AS-IS'})
+      json({message: Config.messages[:terms]})
     end
 
     get '/support' do
-      json({message: 'Busca a @unRob en twitter, pero no creo que te ayude'})
+      json({message: Config.messages[:support]})
     end
 
 
