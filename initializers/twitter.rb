@@ -4,4 +4,4 @@ twitter = Twitter::REST::Client.new do |config|
     config.access_token        = API::Config.twitter[:token]
     config.access_token_secret = API::Config.twitter[:access_token]
 end
-set :twitter, twitter
+API::V1.set :twitter, twitter
