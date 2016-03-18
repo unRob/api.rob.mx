@@ -9,6 +9,11 @@ namespace :twitter do
       config.access_token_secret = API::Config.twitter[:access_token]
     end
 
+    Signal.trap("TERM") {
+      puts "Exiting loop..."
+      exit 0
+    }
+
     opts = {
       with: 'user'
     }

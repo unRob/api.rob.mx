@@ -43,20 +43,29 @@ class API::V1 < Sinatra::Base
       query[:ended] = {'$lte' => @until} if @until
 
       rides = Ride.where(query).count
-      aggregation = [
-        {'$match' => query},
-        {
-          '$group' => {
-            _id: nil,
-            distance: {'$sum' => '$distance'},
-            time: {'$sum' => '$moved_for'},
-            elevation: {'$sum' => '$elevation'},
-            speed: {'$avg' => '$avg_speed'}
+      if rides > 0
+        aggregation = [
+          {'$match' => query},
+          {
+            '$group' => {
+              _id: nil,
+              distance: {'$sum' => '$distance'},
+              time: {'$sum' => '$moved_for'},
+              elevation: {'$sum' => '$elevation'},
+              speed: {'$avg' => '$avg_speed'}
+            }
           }
-        }
-      ]
+        ]
 
-      res = Ride.collection.aggregate(aggregation).first
+        res = Ride.collection.aggregate(aggregation).first
+      else
+        res = {
+          'distance' => 0,
+          'elevation' => 0,
+          'speed' => 0,
+          'time' => 0
+        }
+      end
 
       json({
         rides: rides,
