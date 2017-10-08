@@ -12,7 +12,7 @@ class API::V1 < Sinatra::Base
 
       if params[:code].nil?
         opts = {
-          permissions: %w{user_actions.music read_stream}.join(',')
+          permissions: %w{user_actions.music}.join(',')
         }
         redirect to oauth.url_for_oauth_code(opts)
       else

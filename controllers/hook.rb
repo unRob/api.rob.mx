@@ -54,7 +54,7 @@ class API::V1 < Sinatra::Base
           time: time
         }
         Event::Listen.create(evt)
-        ENV['DEBUG'] = true
+        #ENV['DEBUG'] = true
         if playlist
           max = API::Config.spotify[:max_tracks].to_i
           begin

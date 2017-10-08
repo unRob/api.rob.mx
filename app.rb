@@ -135,7 +135,7 @@ module API
     error do
       status 500
       err = env['sinatra.error']
-      json({error: err.message})
+      json({error: err.message, backtrace: err.backtrace})
     end
 
   end

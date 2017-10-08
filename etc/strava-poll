@@ -6,4 +6,4 @@ export BUNDLE_GEMFILE=/domains/rob.mx/api/Gemfile
 RAKEFILE=/domains/rob.mx/api/Rakefile
 LOGFILE=/domains/rob.mx/logs/strava.log
 
-rake --rakefile $RAKEFILE strava:poll 2>&1 >> $LOGFILE
+/usr/local/bin/rake --rakefile $RAKEFILE strava:poll 2>&1 >> $LOGFILE
