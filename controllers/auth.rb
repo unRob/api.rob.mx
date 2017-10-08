@@ -19,7 +19,6 @@ class API::V1 < Sinatra::Base
         access_token = oauth.get_access_token(params[:code])
         API::Config.facebook[:access_token] = access_token
         API::Config.save
-        # API::Config.facebook[:access_token]
         'yay!'
       end
     end
@@ -42,7 +41,8 @@ class API::V1 < Sinatra::Base
           'yay!'
         end
       else
-        login_url = SimpleSpotify::Authorization.login_uri redirect+'/done', SimpleSpotify.default_client, scope: 'playlist-modify-public user-read-private'
+        scope = 'user-read-recently-played playlist-modify-public user-read-private'
+        login_url = SimpleSpotify::Authorization.login_uri redirect+'/done', SimpleSpotify.default_client, scope: scope
         redirect to(login_url)
       end
     end
