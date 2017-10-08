@@ -11,7 +11,7 @@ group :script, :http do
   gem 'wolfram'
   gem 'activesupport', require: %w{active_support/core_ext}
   gem 'twitter'
-  gem 'pushover', '~> 1.0.4'
+  # gem 'pushover', '~> 1.0.4'
   gem 'mandrill-api', require: 'mandrill'
   gem 'maruku'
   gem 'instagram'
