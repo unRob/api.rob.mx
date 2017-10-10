@@ -36,6 +36,8 @@ class API::V1 < Sinatra::Base
           API::Config.spotify[:refresh] = auth.refresh_token
           API::Config.save
         rescue Exception => e
+          puts e.backtrace.reverse
+          puts e.message
           json({cagation: e.message})
         else
           'yay!'

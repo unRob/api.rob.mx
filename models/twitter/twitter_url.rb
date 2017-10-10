@@ -1,7 +1,7 @@
 class TwitterURL
   include Mongoid::Document
 
-  field :_id, default: nil, overwrite: true
+  field :_id, default: nil
   embedded_in :twitter_url, polymorphic: true
 
   field :i, as: :indices, type: Array

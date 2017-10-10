@@ -4,15 +4,13 @@ group :script, :http do
   gem 'sinatra'
   gem 'sinatra-contrib'
   gem 'koala'
-  gem 'mongoid'
+  gem 'mongoid', '~> 4.0.2'
   gem 'bson'
   gem 'moped'
   gem 'simplespotify'
   gem 'wolfram'
-  gem 'activesupport', require: %w{active_support/core_ext}
+  gem 'activesupport', '~> 4.2.3', require: %w{active_support/core_ext}
   gem 'twitter'
-  # gem 'pushover', '~> 1.0.4'
-  gem 'mandrill-api', require: 'mandrill'
   gem 'maruku'
   gem 'instagram'
   gem 'dropbox-sdk', require: 'dropbox_sdk'
@@ -31,4 +29,8 @@ end
 group :http do
   gem 'httparty' # para el event stream
   gem 'redis'
+end
+
+group :development do
+  gem 'rake'
 end

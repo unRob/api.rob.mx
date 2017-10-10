@@ -1,146 +1,149 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (4.2.3)
-      activesupport (= 4.2.3)
+    activemodel (4.2.10)
+      activesupport (= 4.2.10)
       builder (~> 3.1)
-    activesupport (4.2.3)
+    activesupport (4.2.10)
       i18n (~> 0.7)
-      json (~> 1.7, >= 1.7.7)
       minitest (~> 5.1)
       thread_safe (~> 0.3, >= 0.3.4)
       tzinfo (~> 1.1)
-    addressable (2.3.8)
-    backports (3.6.6)
-    bini (0.7.0)
-      sys-proctable
-    bson (3.2.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
+    backports (3.9.1)
+    bson (3.2.7)
     buftok (0.2.0)
-    builder (3.2.2)
-    connection_pool (2.2.0)
+    builder (3.2.3)
+    connection_pool (2.2.1)
+    domain_name (0.5.20170404)
+      unf (>= 0.0.5, < 1.0.0)
     dropbox-sdk (1.6.5)
       json
     equalizer (0.0.11)
-    excon (0.45.4)
-    exifr (1.2.3.1)
-    faraday (0.9.1)
+    exifr (1.3.2)
+    faraday (0.11.0)
       multipart-post (>= 1.2, < 3)
-    faraday_middleware (0.9.2)
-      faraday (>= 0.7.4, < 0.10)
-    hashie (3.4.2)
-    http (0.6.4)
+    faraday_middleware (0.12.2)
+      faraday (>= 0.7.4, < 1.0)
+    hashie (3.5.6)
+    httmultiparty (0.3.16)
+      httparty (>= 0.7.3)
+      mimemagic
+      multipart-post
+    http (2.2.2)
+      addressable (~> 2.3)
+      http-cookie (~> 1.0)
+      http-form_data (~> 1.0.1)
       http_parser.rb (~> 0.6.0)
+    http-cookie (1.0.3)
+      domain_name (~> 0.5)
+    http-form_data (1.0.3)
     http_parser.rb (0.6.0)
-    httparty (0.11.0)
-      multi_json (~> 1.0)
+    httparty (0.15.6)
       multi_xml (>= 0.5.2)
-    i18n (0.7.0)
-    instagram (1.1.5)
-      faraday (>= 0.7, < 0.10)
-      faraday_middleware (>= 0.8, < 0.10)
+    i18n (0.8.6)
+    instagram (0.8.4)
+      faraday (~> 0.7)
+      faraday_middleware (~> 0.8)
       hashie (>= 0.4.0)
-      multi_json (~> 1.0, >= 1.0.3)
-    json (1.8.3)
-    koala (2.0.0)
+      multi_json (~> 1.0.3)
+    json (2.1.0)
+    koala (3.0.0)
       addressable
       faraday
-      multi_json
-    mandrill-api (1.0.53)
-      excon (>= 0.16.0, < 1.0)
-      json (>= 1.7.7, < 2.0)
-    maruku (0.7.2)
+      json (>= 1.8)
+    maruku (0.7.3)
     memoizable (0.4.2)
       thread_safe (~> 0.3, >= 0.3.1)
-    mini_magick (4.3.6)
-    mini_portile (0.6.2)
-    minitest (5.8.0)
+    mimemagic (0.3.2)
+    mini_magick (4.8.0)
+    mini_portile2 (2.3.0)
+    minitest (5.10.3)
     mongoid (4.0.2)
       activemodel (~> 4.0)
       moped (~> 2.0.0)
       origin (~> 2.1)
       tzinfo (>= 0.3.37)
-    moped (2.0.6)
+    moped (2.0.7)
       bson (~> 3.0)
       connection_pool (~> 2.0)
       optionable (~> 0.2.0)
-    multi_json (1.11.2)
-    multi_xml (0.5.5)
+    multi_json (1.0.4)
+    multi_xml (0.6.0)
     multipart-post (2.0.0)
-    naught (1.0.0)
-    nokogiri (1.6.6.2)
-      mini_portile (~> 0.6.0)
+    mustermann (1.0.1)
+    naught (1.1.0)
+    nokogiri (1.8.1)
+      mini_portile2 (~> 2.3.0)
     nokogiri-plist (0.5.0)
       nokogiri
     optionable (0.2.0)
-    origin (2.1.1)
+    origin (2.3.1)
     polylines (0.3.0)
-    pushover (1.0.4)
-      bini (= 0.7.0)
-      httparty (= 0.11.0)
-      yajl-ruby (= 1.1.0)
-    rack (1.6.4)
-    rack-protection (1.5.3)
+    public_suffix (3.0.0)
+    rack (2.0.3)
+    rack-protection (2.0.0)
       rack
-    rack-test (0.6.3)
-      rack (>= 1.0)
-    redis (3.2.1)
+    rake (12.1.0)
+    redis (4.0.1)
     simple_oauth (0.3.1)
-    simplespotify (0.0.4)
+    simplespotify (0.0.6)
       httparty
-    sinatra (1.4.6)
-      rack (~> 1.4)
-      rack-protection (~> 1.4)
-      tilt (>= 1.3, < 3)
-    sinatra-contrib (1.4.6)
+    sinatra (2.0.0)
+      mustermann (~> 1.0)
+      rack (~> 2.0)
+      rack-protection (= 2.0.0)
+      tilt (~> 2.0)
+    sinatra-contrib (2.0.0)
       backports (>= 2.0)
       multi_json
-      rack-protection
-      rack-test
-      sinatra (~> 1.4.0)
+      mustermann (~> 1.0)
+      rack-protection (= 2.0.0)
+      sinatra (= 2.0.0)
       tilt (>= 1.3, < 3)
-    strava-api-v3 (0.1.0)
-      httparty
+    strava-api-v3 (0.7.0)
+      httmultiparty
       multi_json
-    sys-proctable (0.9.8)
-    thread_safe (0.3.5)
-    tilt (2.0.1)
-    twitter (5.14.0)
-      addressable (~> 2.3)
+    thread_safe (0.3.6)
+    tilt (2.0.8)
+    twitter (6.1.0)
+      addressable (~> 2.5)
       buftok (~> 0.2.0)
-      equalizer (~> 0.0.9)
-      faraday (~> 0.9.0)
-      http (~> 0.6.0)
+      equalizer (= 0.0.11)
+      faraday (~> 0.11.0)
+      http (~> 2.1)
       http_parser.rb (~> 0.6.0)
-      json (~> 1.8)
-      memoizable (~> 0.4.0)
-      naught (~> 1.0)
-      simple_oauth (~> 0.3.0)
-    tzinfo (1.2.2)
+      memoizable (~> 0.4.2)
+      naught (~> 1.1)
+      simple_oauth (~> 0.3.1)
+    tzinfo (1.2.3)
       thread_safe (~> 0.1)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.4)
     wolfram (0.2.1)
       nokogiri (>= 1.4.3)
-    yajl-ruby (1.1.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  activesupport
+  activesupport (~> 4.2.3)
   bson
   dropbox-sdk
   exifr
   httparty
   instagram
   koala
-  mandrill-api
   maruku
   mini_magick
-  mongoid
+  mongoid (~> 4.0.2)
   moped
   nokogiri
   nokogiri-plist
   polylines
-  pushover (~> 1.0.4)
+  rake
   redis
   simplespotify
   sinatra
@@ -148,3 +151,6 @@ DEPENDENCIES
   strava-api-v3
   twitter
   wolfram
+
+BUNDLED WITH
+   1.15.4

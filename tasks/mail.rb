@@ -15,7 +15,6 @@ namespace :mail do
         default_recipient: true,
       }
     }
-    API::Mail.configure(Mandrill::API.new(API::Config.mandrill), contacts)
 
     md = <<MD
 # Mira, un salmón

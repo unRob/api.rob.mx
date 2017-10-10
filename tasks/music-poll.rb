@@ -2,7 +2,7 @@ namespace :music do
 
   desc "Descaga eventos sin albums and stuff"
   task :albumiza => :bootstrap do
-    evts = Event::Listen.where({artist: nil}).each do |evt|
+    Event::Listen.where({artist: nil}).each do |evt|
       track = Track.find(evt.track)
       puts track.stub
       attrs = track.attributes
@@ -68,7 +68,7 @@ namespace :music do
 
 
   desc "Importa los tracks de Spotify"
-  task :spotify => :bootstrap do
+  task :facebook => :bootstrap do
 
     def mark url, time
       track = Spotify.track_for(url)
@@ -109,6 +109,61 @@ namespace :music do
 
     parse API.facebook.get_object('me/music.listens', {limit: 100})
   end
+
+
+  desc "Importa los tracks de api.spotify.com/me/player/recently-played"
+  task :spotify => :bootstrap do
+    config = API::Config.spotify
+    client = SimpleSpotify::Client.new(config[:key], config[:secret])
+    client.session = SimpleSpotify::Authorization.new({
+      access_token: config[:token],
+      refresh_token: config[:refresh],
+      client: client
+    })
+
+    dataset = client.recently_played(50)
+    keep_going = true
+    max_processed = 130
+    processed = 0
+    lastRecorded = Event::Listen.last_event_time
+    playTime = dataset.first.played_at
+
+    if (playTime <= lastRecorded)
+      puts 'ya tengo todo :/'
+      exit
+    end
+
+    while keep_going
+      dataset.each do |event|
+        if (event.played_at <= lastRecorded || processed >= max_processed)
+
+          puts event.played_at <= lastRecorded, processed >= max_processed
+          puts
+          keep_going = false
+          break
+        end
+
+        track = Spotify.track_for(event.track.uri.split(":").last)
+        evt = {
+          track: track.id,
+          album: track.album.id,
+          genre: track.genre.id,
+          artist: track.artist.id,
+          source: 'spotify',
+          time: event.played_at
+        }
+        puts "#{evt[:time]}: #{track.name} - #{track.artist.name}"
+
+        Event::Listen.create(evt)
+        processed += 1
+      end
+
+      puts 'asking for more...'
+      dataset = dataset.more unless processed >= max_processed
+      keep_going = !dataset.empty?
+    end
+  end
+
 
   desc "Importa los tracks de mi archivo de facebook"
   task :fb_crawl, [:path] => :bootstrap do |task, args|
