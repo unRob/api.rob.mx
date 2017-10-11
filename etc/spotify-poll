@@ -1,0 +1,9 @@
+#!/usr/bin/zsh
+
+export RACK_ENV=production
+export SERVER_NAME=api.rob.mx
+export BUNDLE_GEMFILE=/domains/rob.mx/api/Gemfile
+RAKEFILE=/domains/rob.mx/api/Rakefile
+LOGFILE=/domains/rob.mx/logs/api.spotify.log
+
+/usr/local/bin/rake --rakefile $RAKEFILE music:spotify 2>&1 >> $LOGFILE
