@@ -1,3 +1,10 @@
+def ahorita time, seconds=30
+  {
+    '$gte' => time - seconds,
+    '$lte' => time + seconds,
+  }
+end
+
 namespace :music do
 
   desc "Descaga eventos sin albums and stuff"
@@ -69,8 +76,15 @@ namespace :music do
 
   desc "Importa los tracks de Spotify"
   task :facebook => :bootstrap do
+    SimpleSpotify::RETRY_IF_RATELIMITED = 'please'
 
     def mark url, time
+      track = Track.where(spotify_id: url.split('/').last).first
+      if track && Event::Listen.where({track: track.id, time: ahorita(time) }).count > 0
+        puts "SKIP [#{time}] #{track.name}"
+        return
+      end
+
       track = Spotify.track_for(url)
       Event::Listen.create({
         track: track.id,
@@ -99,15 +113,30 @@ namespace :music do
           puts e.backtrace.reverse
           puts "#{e.class} ==> #{e.message}"
           puts data['song']
+          puts 'last parsed event', item['id']
           exit
         end
       end
 
-      puts "<--- Parsed hasta #{arr.next_page_params.to_json}"
-      parse arr.next_page
+      if (arr.respond_to? :next_page)
+        puts "<--- Parsed hasta #{arr.next_page_params.to_json}"
+        parse arr.next_page
+      end
     end
 
-    parse API.facebook.get_object('me/music.listens', {limit: 100})
+    if File.exists? './tmp/facebook-listens.json'
+      puts 'Usando response predefinido de ./tmp/facebook-listens.json'
+      data = JSON.parse(open('./tmp/facebook-listens.json').read)['data']
+      if (ENV['AFTER'] || ENV['after'])
+        after = (ENV['AFTER'] || ENV['after']).to_i
+        data.reject! { |d| d['id'].to_i >= after }
+      end
+      puts "Encontré #{data.count} items en total"
+    else
+      data = API.facebook.get_object('me/music.listens', {limit: 100})
+    end
+
+    parse data
   end
 
 

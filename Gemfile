@@ -8,6 +8,7 @@ group :script, :http do
   gem 'bson'
   gem 'moped'
   gem 'simplespotify'
+  # gem 'simplespotify', path: '~/dev/simplespotify'
   gem 'wolfram'
   gem 'activesupport', '~> 4.2.3', require: %w{active_support/core_ext}
   gem 'twitter'

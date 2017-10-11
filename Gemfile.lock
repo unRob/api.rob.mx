@@ -1,3 +1,9 @@
+PATH
+  remote: ../../dev/spotify-api
+  specs:
+    simplespotify (0.1.1)
+      httparty
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -88,8 +94,6 @@ GEM
     rake (12.1.0)
     redis (4.0.1)
     simple_oauth (0.3.1)
-    simplespotify (0.0.6)
-      httparty
     sinatra (2.0.0)
       mustermann (~> 1.0)
       rack (~> 2.0)
@@ -145,7 +149,7 @@ DEPENDENCIES
   polylines
   rake
   redis
-  simplespotify
+  simplespotify!
   sinatra
   sinatra-contrib
   strava-api-v3
